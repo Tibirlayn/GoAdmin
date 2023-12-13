@@ -1,10 +1,13 @@
 package main
 
 import (
-	"fmt"
+
 	"github.com/Tibirlayn/GoAdmin/handlers"
 )
 func main() {
+
+	handlers.ConnectDB()
+
 
 	//1. вызвать метод ConnectDB 
 	//	* должен вернуть Ок или error 

@@ -1,18 +1,18 @@
 package handlers
 
-import 	(
+import (
+	"database/sql"
 	"fmt"
 	"log"
 	_ "github.com/denisenkom/go-mssqldb"
-	"database/sql"
 )
 
-
 func ConnectDB() {
+
 	cfg, err := LoadConfig()
     if err != nil {
         fmt.Println("Error loading config:", err)
-        return
+        return 
     }
 
 	// Использование конфигурации
@@ -21,10 +21,19 @@ func ConnectDB() {
 	fmt.Println("Debug:", cfg.Password)
 	fmt.Println("Debug:", cfg.Database)
 
-    connString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s", cfg.Server, cfg.User, cfg.Password, cfg.Database)
+	//подлючение к БД
+    connString := fmt.Sprintf("server=%s;user id=%s;password=%s;database=%s;encrypt=disable", cfg.Server, cfg.User, cfg.Password, cfg.Database)
     db, err := sql.Open("sqlserver", connString)
     if err != nil {
         log.Fatal(err)
     }
     defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+        fmt.Println("Ошибка подключения к базе данных:", err)
+    } else {
+        fmt.Println("Успешное подключение к базе данных")
+    }
+
 }

@@ -14,24 +14,26 @@ func LogConfiguration() {
         return 
     }
 
-	// Использование конфигурации
-	fmt.Println("Server:", cfg.Server)
-	fmt.Println("User:", cfg.User)
-	fmt.Println("Passeord:", cfg.Password)
-    fmt.Println("FNLLog:", cfg.FNLLog)
-
 	//подлючение к БД
-    connStringLog := fmt.Sprintf("server=%s;user id=%s;password=%s;log=%s;encrypt=disable", cfg.Server, cfg.User, cfg.Password, cfg.FNLLog)
+    connStringLog := fmt.Sprintf("server=%s;user id=%s;password=%s;logs=%s;encrypt=disable", cfg.Server, cfg.User, cfg.Password, cfg.FNLLog)
     db_log, err := sql.Open("sqlserver", connStringLog)
     if err != nil {
         log.Fatal(err)
     }
     defer db_log.Close()
 
+	// Использование конфигурации
+	fmt.Println("Server:", cfg.Server)
+	fmt.Println("User:", cfg.User)
+	fmt.Println("Passeord:", cfg.Password)
+    fmt.Println("FNLLog:", cfg.FNLLog)
+
     err = db_log.Ping()
 	if err != nil {
         fmt.Println("Ошибка подключения к базе данных:", err)
+        fmt.Println("-----------------------------------------")
     } else {
         fmt.Println("Успешное подключение к базе данных")
+        fmt.Println("-----------------------------------------")
     }
 }

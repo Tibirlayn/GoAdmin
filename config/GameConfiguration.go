@@ -14,25 +14,26 @@ func GameConfiguration() {
         return 
     }
 
+	//подлючение к БД
+    connStringGame := fmt.Sprintf("server=%s;user id=%s;password=%s;game=%s;encrypt=disable", cfg.Server, cfg.User, cfg.Password, cfg.FNLGame)
+    db_game, err := sql.Open("sqlserver", connStringGame)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db_game.Close()
+
 	// Использование конфигурации
 	fmt.Println("Server:", cfg.Server)
 	fmt.Println("User:", cfg.User)
 	fmt.Println("Passeord:", cfg.Password)
-    fmt.Println("FNLGame2155:", cfg.FNLGame)
+    fmt.Println("FNLGame:", cfg.FNLGame)
 
-	//подлючение к БД
-    connStringGame2155 := fmt.Sprintf("server=%s;user id=%s;password=%s;game2155=%s;encrypt=disable", cfg.Server, cfg.User, cfg.Password, cfg.FNLGame)
-    db_game2155, err := sql.Open("sqlserver", connStringGame2155)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer db_game2155.Close()
-
-
-    err = db_game2155.Ping()
+    err = db_game.Ping()
 	if err != nil {
         fmt.Println("Ошибка подключения к базе данных:", err)
+        fmt.Println("-----------------------------------------")
     } else {
         fmt.Println("Успешное подключение к базе данных")
+        fmt.Println("-----------------------------------------")
     }
 }

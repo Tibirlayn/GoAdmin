@@ -14,12 +14,6 @@ func BattleConfiguration() {
         return 
     }
 
-	// Использование конфигурации
-	fmt.Println("Server:", cfg.Server)
-	fmt.Println("User:", cfg.User)
-	fmt.Println("Passeord:", cfg.Password)
-    fmt.Println("FNLBattle:", cfg.FNLBattle)
-
     connStringBattle := fmt.Sprintf("server=%s;user id=%s;password=%s;battle=%s;encrypt=disable", cfg.Server, cfg.User, cfg.Password, cfg.FNLBattle)
     db_battle, err := sql.Open("sqlserver", connStringBattle)
     if err != nil {
@@ -27,10 +21,18 @@ func BattleConfiguration() {
     }
     defer db_battle.Close()
     
+	// Использование конфигурации
+	fmt.Println("Server:", cfg.Server)
+	fmt.Println("User:", cfg.User)
+	fmt.Println("Passeord:", cfg.Password)
+    fmt.Println("FNLBattle:", cfg.FNLBattle)
+
     err = db_battle.Ping()
 	if err != nil {
         fmt.Println("Ошибка подключения к базе данных:", err)
+        fmt.Println("-----------------------------------------")
     } else {
         fmt.Println("Успешное подключение к базе данных")
+        fmt.Println("-----------------------------------------")
     }
 }

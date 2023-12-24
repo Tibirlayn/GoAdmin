@@ -14,11 +14,7 @@ func BillingConfiguration() {
         return 
     }
 
-	// Использование конфигурации
-	fmt.Println("Server:", cfg.Server)
-	fmt.Println("User:", cfg.User)
-	fmt.Println("Passeord:", cfg.Password)
-    fmt.Println("FNLBilling:", cfg.FNLBilling)
+
 
 	//подлючение к БД
     connStringBilling := fmt.Sprintf("server=%s;user id=%s;password=%s;billing=%s;encrypt=disable", cfg.Server, cfg.User, cfg.Password, cfg.FNLBilling)
@@ -28,10 +24,18 @@ func BillingConfiguration() {
     }
     defer db_billing.Close()
 
+	// Использование конфигурации
+	fmt.Println("Server:", cfg.Server)
+	fmt.Println("User:", cfg.User)
+	fmt.Println("Passeord:", cfg.Password)
+    fmt.Println("FNLBilling:", cfg.FNLBilling)
+
     err = db_billing.Ping()
 	if err != nil {
         fmt.Println("Ошибка подключения к базе данных:", err)
+        fmt.Println("-----------------------------------------")
     } else {
         fmt.Println("Успешное подключение к базе данных")
+        fmt.Println("-----------------------------------------")
     }
 }

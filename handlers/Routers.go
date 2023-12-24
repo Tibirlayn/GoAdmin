@@ -10,6 +10,12 @@ import (
 func Routers(router *gin.Engine) {
 
 	config.AccountConfiguration()
+	config.BattleConfiguration()
+	config.BillingConfiguration()
+	config.GameConfiguration()
+	config.LogConfiguration()
+	config.ParmConfiguration()
+	config.StatisticsConfiguration()
 
 	// Обработчик GET запроса на корневой URL
 	router.GET("/", func(c *gin.Context) {

@@ -15,12 +15,6 @@ func AccountConfiguration() {
         return 
     }
 
-	// Использование конфигурации
-	fmt.Println("Server:", cfg.Server)
-	fmt.Println("User:", cfg.User)
-	fmt.Println("Passeord:", cfg.Password)
-	fmt.Println("FNLAccount:", cfg.FNLAccount)
-
 	//подлючение к БД
     connStringAccount := fmt.Sprintf("server=%s;user id=%s;password=%s;account=%s;encrypt=disable", cfg.Server, cfg.User, cfg.Password, cfg.FNLAccount)
     db_account, err := sql.Open("sqlserver", connStringAccount)
@@ -29,10 +23,18 @@ func AccountConfiguration() {
     }
     defer db_account.Close()
 
+    // Использование конфигурации
+	fmt.Println("Server:", cfg.Server)
+	fmt.Println("User:", cfg.User)
+	fmt.Println("Passeord:", cfg.Password)
+	fmt.Println("FNLAccount:", cfg.FNLAccount)
+
 	err = db_account.Ping()
 	if err != nil {
         fmt.Println("Ошибка подключения к базе данных:", err)
+        fmt.Println("-----------------------------------------")
     } else {
         fmt.Println("Успешное подключение к базе данных")
+        fmt.Println("-----------------------------------------")
     }
 }

@@ -14,12 +14,6 @@ func ParmConfiguration() {
         return 
     }
 
-	// Использование конфигурации
-	fmt.Println("Server:", cfg.Server)
-	fmt.Println("User:", cfg.User)
-	fmt.Println("Passeord:", cfg.Password)
-    fmt.Println("FNLParm:", cfg.FNLParm)
-
 	//подлючение к БД
     connStringParm := fmt.Sprintf("server=%s;user id=%s;password=%s;parm=%s;encrypt=disable", cfg.Server, cfg.User, cfg.Password, cfg.FNLParm)
     db_parm, err := sql.Open("sqlserver", connStringParm)
@@ -28,10 +22,18 @@ func ParmConfiguration() {
     }
     defer db_parm.Close()
 
+	// Использование конфигурации
+	fmt.Println("Server:", cfg.Server)
+	fmt.Println("User:", cfg.User)
+	fmt.Println("Passeord:", cfg.Password)
+    fmt.Println("FNLParm:", cfg.FNLParm)
+
     err = db_parm.Ping()
 	if err != nil {
         fmt.Println("Ошибка подключения к базе данных:", err)
+        fmt.Println("-----------------------------------------")
     } else {
         fmt.Println("Успешное подключение к базе данных")
+        fmt.Println("-----------------------------------------")
     }
 }

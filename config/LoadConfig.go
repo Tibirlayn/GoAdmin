@@ -2,55 +2,56 @@ package config
 
 import (
 	"fmt"
+
 	"github.com/spf13/viper"
 )
 
 type AccountConfig struct {
-	Server string
-	User string
-	Password string
+	Server     string
+	User       string
+	Password   string
 	FNLAccount string
 }
 
 type BattleConfig struct {
-	Server string
-	User string
-	Password string
+	Server    string
+	User      string
+	Password  string
 	FNLBattle string
 }
 
 type BillingConfig struct {
-	Server string
-	User string
-	Password string
+	Server     string
+	User       string
+	Password   string
 	FNLBilling string
 }
 
 type GameConfig struct {
-	Server string
-	User string
+	Server   string
+	User     string
 	Password string
-	FNLGame string
+	FNLGame  string
 }
 
 type LogConfig struct {
-	Server string
-	User string
+	Server   string
+	User     string
 	Password string
-	FNLLog string
+	FNLLog   string
 }
 
 type ParmConfig struct {
-	Server string
-	User string
+	Server   string
+	User     string
 	Password string
-	FNLParm string
+	FNLParm  string
 }
 
 type StatisticsConfig struct {
-	Server string
-	User string
-	Password string
+	Server        string
+	User          string
+	Password      string
 	FNLStatistics string
 }
 
@@ -71,7 +72,7 @@ func AccountLoadConfig() (AccountConfig, error) {
 	config.Password = viper.GetString("password")
 	config.FNLAccount = viper.GetString("account")
 
-	//возращаем данные 
+	//возращаем данные
 	return config, nil
 }
 
@@ -91,8 +92,8 @@ func BattleLoadConfig() (BattleConfig, error) {
 	config.User = viper.GetString("user")
 	config.Password = viper.GetString("password")
 	config.FNLBattle = viper.GetString("battle")
-	
-	//возращаем данные 
+
+	//возращаем данные
 	return config, nil
 }
 
@@ -113,7 +114,7 @@ func BillingLoadConfig() (BillingConfig, error) {
 	config.Password = viper.GetString("password")
 	config.FNLBilling = viper.GetString("billing")
 
-	//возращаем данные 
+	//возращаем данные
 	return config, nil
 }
 
@@ -132,15 +133,14 @@ func GameLoadConfig() (GameConfig, error) {
 	config.Server = viper.GetString("server")
 	config.User = viper.GetString("user")
 	config.Password = viper.GetString("password")
-	config.FNLGame = viper.GetString("game2155")
-	
-	//возращаем данные 
+	config.FNLGame = viper.GetString("game")
+
+	//возращаем данные
 	return config, nil
 }
 
 func LogLoadConfig() (LogConfig, error) {
 	var config LogConfig
-
 	// открываем и читаем файл, если файл нет, выдает ошибку
 	viper.SetConfigFile("config/dbparam/logConfig.yml")
 	err := viper.ReadInConfig()
@@ -153,9 +153,9 @@ func LogLoadConfig() (LogConfig, error) {
 	config.Server = viper.GetString("server")
 	config.User = viper.GetString("user")
 	config.Password = viper.GetString("password")
-	config.FNLLog = viper.GetString("log")	
+	config.FNLLog = viper.GetString("logs")
 
-	//возращаем данные 
+	//возращаем данные
 	return config, nil
 }
 
@@ -174,9 +174,9 @@ func ParmLoadConfig() (ParmConfig, error) {
 	config.Server = viper.GetString("server")
 	config.User = viper.GetString("user")
 	config.Password = viper.GetString("password")
-	config.FNLParm = viper.GetString("parm")	
+	config.FNLParm = viper.GetString("parm")
 
-	//возращаем данные 
+	//возращаем данные
 	return config, nil
 }
 
@@ -196,8 +196,7 @@ func StatisticsLoadConfig() (StatisticsConfig, error) {
 	config.User = viper.GetString("user")
 	config.Password = viper.GetString("password")
 	config.FNLStatistics = viper.GetString("statistics")
-	
 
-	//возращаем данные 
+	//возращаем данные
 	return config, nil
 }

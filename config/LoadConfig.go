@@ -2,201 +2,82 @@ package config
 
 import (
 	"fmt"
-
 	"github.com/spf13/viper"
 )
 
-type AccountConfig struct {
-	Server     string
-	User       string
-	Password   string
-	FNLAccount string
+type Config struct {
+	Account DBConfig
+    Battle DBConfig
+    Billing DBConfig
+    Game DBConfig
+    Log DBConfig
+    Parm DBConfig
+    Statistics DBConfig
 }
 
-type BattleConfig struct {
-	Server    string
-	User      string
-	Password  string
-	FNLBattle string
-}
-
-type BillingConfig struct {
-	Server     string
-	User       string
-	Password   string
-	FNLBilling string
-}
-
-type GameConfig struct {
-	Server   string
-	User     string
+type DBConfig struct {
+	Server string
+	User string
 	Password string
-	FNLGame  string
+	DBname string
 }
 
-type LogConfig struct {
-	Server   string
-	User     string
-	Password string
-	FNLLog   string
-}
-
-type ParmConfig struct {
-	Server   string
-	User     string
-	Password string
-	FNLParm  string
-}
-
-type StatisticsConfig struct {
-	Server        string
-	User          string
-	Password      string
-	FNLStatistics string
-}
-
-func AccountLoadConfig() (AccountConfig, error) {
-	var config AccountConfig
+func LoadConfig() (Config, error) {
+	var configFile Config
 
 	// открываем и читаем файл, если файл нет, выдает ошибку
-	viper.SetConfigFile("config/dbparam/accountConfig.yml")
+	viper.SetConfigFile("config/dbparam/Config.yml")
 	err := viper.ReadInConfig()
 	if err != nil {
 		fmt.Println("Error reading config file:", err)
-		return config, err
+		return configFile, err
+	}
+	
+	// Записываем данные в структуру 
+	configData := Config {
+		Account: DBConfig {
+			Server: viper.GetString("account.server"),
+			User: viper.GetString("account.user"),
+			Password: viper.GetString("account.password"),
+			DBname: viper.GetString("account.account"),
+		},
+		Battle: DBConfig {
+			Server: viper.GetString("battle.server"),
+			User: viper.GetString("battle.user"),
+			Password: viper.GetString("battle.password"),
+			DBname: viper.GetString("battle.battle"),
+		},
+		Billing: DBConfig {
+			Server: viper.GetString("billing.server"),
+			User: viper.GetString("billing.user"),
+			Password: viper.GetString("billing.password"),
+			DBname: viper.GetString("billing.billing"),
+		},
+		Game: DBConfig {
+			Server: viper.GetString("game.server"),
+			User: viper.GetString("game.user"),
+			Password: viper.GetString("game.password"),
+			DBname: viper.GetString("game.game"),
+		},
+		Log: DBConfig {
+			Server: viper.GetString("logs.server"),
+			User: viper.GetString("logs.user"),
+			Password: viper.GetString("logs.password"),
+			DBname: viper.GetString("logs.logs"),
+		},
+		Parm: DBConfig {
+			Server: viper.GetString("parm.server"),
+			User: viper.GetString("parm.user"),
+			Password: viper.GetString("parm.password"),
+			DBname: viper.GetString("parm.parm"),
+		},
+		Statistics: DBConfig {
+			Server: viper.GetString("statistics.server"),
+			User: viper.GetString("statistics.user"),
+			Password: viper.GetString("statistics.password"),
+			DBname: viper.GetString("statistics.statistics"),
+		},
 	}
 
-	// Создаем структуру данных
-	config.Server = viper.GetString("server")
-	config.User = viper.GetString("user")
-	config.Password = viper.GetString("password")
-	config.FNLAccount = viper.GetString("account")
-
-	//возращаем данные
-	return config, nil
-}
-
-func BattleLoadConfig() (BattleConfig, error) {
-	var config BattleConfig
-
-	// открываем и читаем файл, если файл нет, выдает ошибку
-	viper.SetConfigFile("config/dbparam/battleConfig.yml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Error reading config file:", err)
-		return config, err
-	}
-
-	// Создаем структуру данных
-	config.Server = viper.GetString("server")
-	config.User = viper.GetString("user")
-	config.Password = viper.GetString("password")
-	config.FNLBattle = viper.GetString("battle")
-
-	//возращаем данные
-	return config, nil
-}
-
-func BillingLoadConfig() (BillingConfig, error) {
-	var config BillingConfig
-
-	// открываем и читаем файл, если файл нет, выдает ошибку
-	viper.SetConfigFile("config/dbparam/billingConfig.yml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Error reading config file:", err)
-		return config, err
-	}
-
-	// Создаем структуру данных
-	config.Server = viper.GetString("server")
-	config.User = viper.GetString("user")
-	config.Password = viper.GetString("password")
-	config.FNLBilling = viper.GetString("billing")
-
-	//возращаем данные
-	return config, nil
-}
-
-func GameLoadConfig() (GameConfig, error) {
-	var config GameConfig
-
-	// открываем и читаем файл, если файл нет, выдает ошибку
-	viper.SetConfigFile("config/dbparam/gameConfig.yml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Error reading config file:", err)
-		return config, err
-	}
-
-	// Создаем структуру данных
-	config.Server = viper.GetString("server")
-	config.User = viper.GetString("user")
-	config.Password = viper.GetString("password")
-	config.FNLGame = viper.GetString("game")
-
-	//возращаем данные
-	return config, nil
-}
-
-func LogLoadConfig() (LogConfig, error) {
-	var config LogConfig
-	// открываем и читаем файл, если файл нет, выдает ошибку
-	viper.SetConfigFile("config/dbparam/logConfig.yml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Error reading config file:", err)
-		return config, err
-	}
-
-	// Создаем структуру данных
-	config.Server = viper.GetString("server")
-	config.User = viper.GetString("user")
-	config.Password = viper.GetString("password")
-	config.FNLLog = viper.GetString("logs")
-
-	//возращаем данные
-	return config, nil
-}
-
-func ParmLoadConfig() (ParmConfig, error) {
-	var config ParmConfig
-
-	// открываем и читаем файл, если файл нет, выдает ошибку
-	viper.SetConfigFile("config/dbparam/parmConfig.yml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Error reading config file:", err)
-		return config, err
-	}
-
-	// Создаем структуру данных
-	config.Server = viper.GetString("server")
-	config.User = viper.GetString("user")
-	config.Password = viper.GetString("password")
-	config.FNLParm = viper.GetString("parm")
-
-	//возращаем данные
-	return config, nil
-}
-
-func StatisticsLoadConfig() (StatisticsConfig, error) {
-	var config StatisticsConfig
-
-	// открываем и читаем файл, если файл нет, выдает ошибку
-	viper.SetConfigFile("config/dbparam/statisticsConfig.yml")
-	err := viper.ReadInConfig()
-	if err != nil {
-		fmt.Println("Error reading config file:", err)
-		return config, err
-	}
-
-	// Создаем структуру данных
-	config.Server = viper.GetString("server")
-	config.User = viper.GetString("user")
-	config.Password = viper.GetString("password")
-	config.FNLStatistics = viper.GetString("statistics")
-
-	//возращаем данные
-	return config, nil
+	return configData, nil
 }

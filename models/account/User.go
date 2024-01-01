@@ -8,7 +8,7 @@ import (
 func User() {
 
 	// подключение к БД
-	db := handlers.ConnectDB()
+	db := handlers.ConnectAccountDB()
 
 	rows, err := db.Query("SELECT * FROM TblUser LIMIT 20")
 	if err != nil {

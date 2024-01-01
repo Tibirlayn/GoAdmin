@@ -7,14 +7,14 @@ import (
 	_ "github.com/denisenkom/go-mssqldb"
 )
 
-func AccountConfiguration() (*sql.DB, error) {
+func Configuration() (*sql.DB, error) {
 	cfg, err := LoadConfig()
     if err != nil {
         fmt.Println("Error loading config:", err)
         return nil, err
     }
 
-	//подлючение к БД
+	// Подлючение к БД
     connStringAccount := fmt.Sprintf(
 		"server=%s;user id=%s;password=%s;account=%s;encrypt=disable", 
 		cfg.Account.Server, cfg.Account.User, cfg.Account.Password, cfg.Account.DBname)
@@ -31,6 +31,7 @@ func AccountConfiguration() (*sql.DB, error) {
 	fmt.Println("Passeord:", cfg.Account.Password)
 	fmt.Println("FNLAccount:", cfg.Account.DBname)
 
+	// Проверка подключения 
 	err = db_account.Ping()
 	if err != nil {
         fmt.Println("Ошибка подключения к базе данных:", err)

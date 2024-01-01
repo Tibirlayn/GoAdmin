@@ -1,12 +1,44 @@
 package handlers
 /*
 import (
-	"database/sql"
 	"fmt"
-	"log"
-	_ "github.com/denisenkom/go-mssqldb"
+	"github.com/Tibirlayn/GoAdmin/config"
 )
 
+func ConnectAccountDB() (db, error)  {
+    db, err := config.AccountConfiguration()
+    if err != nil {
+        fmt.Println("Error connect router:", err)
+        return nil, err
+    }
+    return db, nil
+}
+
+func ConnectBattleDB() {
+
+}
+
+func ConnectBillineDB() {
+
+}
+
+func ConnectGameDB() {
+
+}
+
+func ConnectLogDB() {
+
+}
+
+func ConnectParmDB() {
+
+}
+
+func ConnectStaticsDB() {
+
+}
+
+/*
 func ConnectDB() {
 
 	cfg, err := LoadConfig()

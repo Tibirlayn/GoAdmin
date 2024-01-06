@@ -1,6 +1,21 @@
 package main
 
 import (
+	"log"
+	"github.com/Tibirlayn/GoAdmin/pkg/routes"
+	"github.com/gofiber/fiber/v2"
+)
+
+func main() {
+    app := fiber.New()
+
+	routes.Setup(app)
+
+    log.Fatal(app.Listen(":8000"))
+}
+
+/*
+import (
 	"github.com/Tibirlayn/GoAdmin/handlers"
 	"github.com/gin-gonic/gin"
 )
@@ -20,3 +35,4 @@ func main() {
 	router.Run(":8080")
 
 }
+*/

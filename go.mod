@@ -62,6 +62,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dnaeon/go-vcr v1.2.0 // indirect
 	github.com/gofiber/fiber/v2 v2.51.0
+	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/modocache/gover v0.0.0-20171022184752-b58185e213c5 // indirect

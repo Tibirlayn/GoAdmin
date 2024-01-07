@@ -3,7 +3,6 @@ package controllers
 import (
 	"fmt"
 	"time"
-
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
 	"github.com/Tibirlayn/GoAdmin/pkg/models/account"
 	"github.com/gofiber/fiber/v2"
@@ -127,16 +126,6 @@ func User(c *fiber.Ctx) error {
 	// Получаем токен из cookie
 	cookie := c.Cookies("jwt")
 
-	/*
-	// Парсим токен
-	token, err := jwt.Parse(cookie, func(token *jwt.Token) (interface{}, error) {
-		// Поменяйте это на ваше собственное получение секретного ключа
-		return []byte(SecretKey), nil
-	})
-	if err != nil {
-		return err
-	}
-	*/
 	// Пытаемся распарсить токен с помощью секретного ключа
 	token, err := jwt.ParseWithClaims(cookie, &jwt.MapClaims{}, func(token *jwt.Token) (interface{}, error) {
 		// Проверяем, что тип подписи подходит для нашего секретного ключа

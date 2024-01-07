@@ -22,7 +22,7 @@ func AccountConfiguration() (*gorm.DB, error) {
 		cfg.Account.Server, cfg.Account.User, cfg.Account.Password, cfg.Account.DBname)
     */
     //db_account, err := sql.Open("sqlserver", connStringAccount)
-    dns := fmt.Sprintf("sqlserver://%s:%s@%s:1433?database=%s&encrypt=disable", cfg.Account.User, cfg.Account.Password, cfg.Account.Server, cfg.Account.DBname)
+    dns := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s&encrypt=disable", cfg.Account.User, cfg.Account.Password, cfg.Account.Server, cfg.Account.Port, cfg.Account.DBname)
     db_account, err := gorm.Open(sqlserver.Open(dns), &gorm.Config{})
     if err != nil {
         log.Fatal(err)

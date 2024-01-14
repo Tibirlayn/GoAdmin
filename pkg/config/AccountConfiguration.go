@@ -8,8 +8,6 @@ import (
     "github.com/Tibirlayn/GoAdmin/pkg/models/account"
 )
 
-var DB *gorm.DB
-
 func AccountConfiguration() (*gorm.DB, error) {
 	cfg, err := LoadConfig()
     if err != nil {
@@ -30,14 +28,10 @@ func AccountConfiguration() (*gorm.DB, error) {
         log.Fatal(err)
         return nil, err
     }
-
     // Автоматическое создание таблиц в базе данных MSSQL на основе определения модели User
     if err := db_account.AutoMigrate(&account.User{}); err != nil {
         panic(err)
     } 
-
-    DB = db_account // получаем 
-
     // Получаем объект базы данных gorm.DB и отложенно закрываем его соединение
     dbSQL, err := db_account.DB()
     if err != nil {

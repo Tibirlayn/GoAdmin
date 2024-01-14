@@ -8,6 +8,8 @@ import (
     "github.com/Tibirlayn/GoAdmin/pkg/models/account"
 )
 
+var DB *gorm.DB
+
 func AccountConfiguration() (*gorm.DB, error) {
 	cfg, err := LoadConfig()
     if err != nil {
@@ -34,13 +36,15 @@ func AccountConfiguration() (*gorm.DB, error) {
         panic(err)
     } 
 
+    DB = db_account // получаем 
+
     // Получаем объект базы данных gorm.DB и отложенно закрываем его соединение
     dbSQL, err := db_account.DB()
     if err != nil {
         return nil, err
     }
 
-    //defer dbSQL.Close()
+    //defer dbSQL.Close() // если не сработает нужно будет закаментировать 
 
     // Использование конфигурации
 	fmt.Println("Server:", cfg.Account.Server)

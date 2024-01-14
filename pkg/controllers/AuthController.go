@@ -80,6 +80,7 @@ func Login(c *fiber.Ctx) error {
 			"message": "incorrect password",
 		})
 	}
+	
 
 	// Получаем объект базы данных gorm.DB и отложенно закрываем его соединение
 	sqlDB, err := connection_DB.DB()

@@ -114,3 +114,15 @@ func GetSearchUser(c *fiber.Ctx) error {
 		return c.JSON(result)
 	}
 }
+
+/*
+func GetUserPc(c fiber.Ctx) error {
+	if DB, err := config.AccountConfiguration(); err != nil {
+		return err
+	} else {
+		value := c.Params("value") 
+		var pc := 
+	}
+	return nil
+}
+*/

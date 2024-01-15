@@ -14,14 +14,7 @@ func AccountConfiguration() (*gorm.DB, error) {
         fmt.Println("Error loading config:", err)
         return nil, err
     }
-
-	//подлючение к БД
-    /*
-    connStringAccount := fmt.Sprintf(
-		"server=%s;user id=%s;password=%s;account=%s;encrypt=disable", 
-		cfg.Account.Server, cfg.Account.User, cfg.Account.Password, cfg.Account.DBname)
-    */
-    //db_account, err := sql.Open("sqlserver", connStringAccount)
+	//подлючение к БД ...
     dns := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s&encrypt=disable", cfg.Account.User, cfg.Account.Password, cfg.Account.Server, cfg.Account.Port, cfg.Account.DBname)
     db_account, err := gorm.Open(sqlserver.Open(dns), &gorm.Config{})
     if err != nil {
@@ -37,13 +30,11 @@ func AccountConfiguration() (*gorm.DB, error) {
     if err != nil {
         return nil, err
     }
-
-    //defer dbSQL.Close() // если не сработает нужно будет закаментировать 
-
     // Использование конфигурации
 	fmt.Println("Server:", cfg.Account.Server)
 	fmt.Println("User:", cfg.Account.User)
 	fmt.Println("Passeord:", cfg.Account.Password)
+    fmt.Println("Port:", cfg.Account.Port)
 	fmt.Println("FNLAccount:", cfg.Account.DBname)
 
 	if err := dbSQL.Ping(); err != nil {

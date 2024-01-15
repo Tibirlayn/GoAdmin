@@ -92,11 +92,11 @@ func GetUserAdmin(c *fiber.Ctx) error {
 }
 // поиск по id / namePc / nameLogin / email 
 func GetSearchUser(c *fiber.Ctx) error {
+	value := c.Params("value")
+	var result SearchResult
 	if DB, err := config.AccountConfiguration(); err != nil {
 		return err
 	} else {
-		value := c.Params("value")
-		var result SearchResult
 		//memberUserId := DB.Table(member.TableName()).Where("MUserId = ?", value).First(&member)
 		memberResult := DB.Where("mUserId = ? OR email = ?", value, value).Find(&result.Member)
 		if num, err := strconv.Atoi(value); err != nil {
@@ -105,7 +105,6 @@ func GetSearchUser(c *fiber.Ctx) error {
 		} else {
 			DB.Where("mUserNo = ? OR mUserId = ?", num, value).Find(&result.User)
 		}
-		
 		if memberResult.Error != nil {
 			// Обработать ошибку, если результат неудачен
 			fmt.Println("Ошибка при выполнении запроса к базе данных:", memberResult.Error)

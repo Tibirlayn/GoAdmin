@@ -18,6 +18,14 @@ func Setup(app *fiber.App) {
 	app.Get("/api/user-black", controllers.GetUserBlack)
 	app.Get("/api/admin", controllers.GetUserAdmin)
 	app.Get("/api/search-user/:value", controllers.GetSearchUser) // поиск по id / namePc / nameLogin / email 
-	//app.Get("/api/user-pc/:value", controllers.GetPc)
+
+	// GameController
 	app.Get("/api/pc", controllers.GetPc)
+	app.Get("/api/user-pc/:idUser", controllers.GetUserPc)
+	app.Get("/api/pc-info", controllers.GetPcInfo)
+
+
+
+	// BillingController
+	// ParmController
 }

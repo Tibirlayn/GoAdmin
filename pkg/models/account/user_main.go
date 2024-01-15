@@ -4,8 +4,8 @@ import "time"
 
 type TblUser struct {
 	MRegDate           time.Time `json:"mRegDate" gorm:"column:mRegDate"`
-	MUserAuth          uint8     `json:"mUserAuth"`
-	MUserNo            int       `json:"mUserNo" gorm:"primaryKey;column:mUserNo"`
+	MUserAuth          uint8     `json:"mUserAuth" gorm:"column:mUserAuth"`
+	MUserNo            int       `json:"mUserNo" gorm:"column:mUserNo;primaryKey"`
 	MUserId            string    `json:"mUserId" gorm:"column:mUserId"`
 	MUserPswd          string    `json:"mUserPswd" gorm:"column:mUserPswd"`
 	MCertifiedKey      int       `json:"mCertifiedKey" gorm:"column:mCertifiedKey"`

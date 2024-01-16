@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
@@ -42,7 +43,11 @@ func GetUserPc(c *fiber.Ctx) error {
 }
 
 func GetPcInfo(c *fiber.Ctx) error {
-	var name = c.Query("mNm") // имя персонажа
+	// имя персонажа
+	var name = c.Query("mNm"); 
+	if name == "" {
+		return errors.New("Введите значение персонажа")
+	} 
 	var pc PcInfo
 	if DB, err := config.GameConfiguration(); err != nil {
 		return err
@@ -63,7 +68,6 @@ func GetPcInfo(c *fiber.Ctx) error {
 		if resultPcStore := DB.Where("mUserNo = ?", idUser).Find(&pc.PcStore); resultPcStore.Error != nil {
 			fmt.Println("Обработать ошибку, если результат неудачен GetPcInfo > if > resultPcStore") 
 		}
-
 	}
 	return c.JSON(pc)
 }

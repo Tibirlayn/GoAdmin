@@ -24,8 +24,11 @@ func Setup(app *fiber.App) {
 	app.Get("/api/user-pc/:idUser", controllers.GetUserPc)
 	app.Get("/api/pc-info", controllers.GetPcInfo)
 
+	
+	// ParmController
+	app.Get("/api/drop-boss", controllers.GetInfoBossDrop)
+
 
 
 	// BillingController
-	// ParmController
 }

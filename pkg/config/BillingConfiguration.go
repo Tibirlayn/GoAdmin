@@ -1,37 +1,41 @@
 package config
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
-	_ "github.com/denisenkom/go-mssqldb"
+    "gorm.io/driver/sqlserver"  
+    "gorm.io/gorm"
 )
 
-func BillingConfiguration() (*sql.DB, error) {
+func BillingConfiguration() (*gorm.DB, error) {
 	cfg, err := LoadConfig()
     if err != nil {
         fmt.Println("Error loading config:", err)
         return nil, err
     }
 
-	//подлючение к БД
-    connStringBilling := fmt.Sprintf(
-        "server=%s;user id=%s;password=%s;billing=%s;encrypt=disable", 
-    cfg.Billing.Server, cfg.Billing.User, cfg.Billing.Password, cfg.Billing.DBname)
-    db_billing, err := sql.Open("sqlserver", connStringBilling)
+	//подлючение к БД ...
+    dns := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s&encrypt=disable", cfg.Billing.User, cfg.Billing.Password, cfg.Billing.Server, cfg.Billing.Port, cfg.Billing.DBname)
+    db_billing, err := gorm.Open(sqlserver.Open(dns), &gorm.Config{})
     if err != nil {
         log.Fatal(err)
+        return nil, err
     }
-    defer db_billing.Close()
+    // Получаем объект базы данных gorm.DB и отложенно закрываем его соединение
+    dbSQL, err := db_billing.DB()
+    if err != nil {
+        return nil, err
+    }
 
 	// Использование конфигурации
 	fmt.Println("Server:", cfg.Billing.Server)
 	fmt.Println("User:", cfg.Billing.User)
 	fmt.Println("Passeord:", cfg.Billing.Password)
+    fmt.Println("Port:", cfg.Billing.Port)
     fmt.Println("FNLBilling:", cfg.Billing.DBname)
 
     // Проверка подключения 
-    err = db_billing.Ping()
+    err = dbSQL.Ping()
 	if err != nil {
         fmt.Println("Ошибка подключения к базе данных:", err)
         fmt.Println("-----------------------------------------")
@@ -40,5 +44,5 @@ func BillingConfiguration() (*sql.DB, error) {
         fmt.Println("-----------------------------------------")
     }
 
-    return nil, err
+    return db_billing, err
 }

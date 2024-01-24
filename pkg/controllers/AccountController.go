@@ -92,7 +92,7 @@ func GetUserAdmin(c *fiber.Ctx) error {
 }
 // поиск по id / namePc / nameLogin / email 
 func GetSearchUser(c *fiber.Ctx) error {
-	value := c.Params("value")
+	value := c.Query("value")
 	var result SearchResult
 	if DB, err := config.AccountConfiguration(); err != nil {
 		return err

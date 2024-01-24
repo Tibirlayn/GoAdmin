@@ -16,18 +16,19 @@ func Setup(app *fiber.App) {
 	app.Get("/api/member", controllers.GetMember)
 	app.Get("/api/user-block", controllers.GetUserBlock)
 	app.Get("/api/user-black", controllers.GetUserBlack)
-	app.Get("/api/admin", controllers.GetUserAdmin)
-	app.Get("/api/search-user/:value", controllers.GetSearchUser) // поиск по id / namePc / nameLogin / email 
+	app.Get("/api/admin", controllers.GetUserAdmin) 
+	app.Get("/api/search-user", controllers.GetSearchUser) // поиск по id / namePc / nameLogin / email 
 
 	// GameController
-	app.Get("/api/pc", controllers.GetPc)
+	app.Get("/api/pc", controllers.GetPc) // получить персонажа
 	app.Get("/api/user-pc/:idUser", controllers.GetUserPc)
 	app.Get("/api/pc-info", controllers.GetPcInfo)
 
 	
 	// ParmController
-	app.Get("/api/drop-boss", controllers.GetInfoBossDrop)
-
+	app.Get("/api/drop-boss", controllers.GetInfoBossDrop) // Просмотр всех предметов у монстра
+	app.Get("/api/specific-proc-item", controllers.GetSpecificProcItem) // Просмотр координат печатей телепорта 
+	app.Post("/api/add-gift", controllers.PostGift)
 
 
 	// BillingController

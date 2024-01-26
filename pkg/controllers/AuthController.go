@@ -15,12 +15,12 @@ const SecretKey = "secret"
 func Register(c *fiber.Ctx) error {
 	var data map[string]string
 
-	connection_DB, err := config.AccountConfiguration()
-	if err != nil {
+	if err := c.BodyParser(&data); err != nil {
 		return err
 	}
 
-	if err := c.BodyParser(&data); err != nil {
+	connection_DB, err := config.AccountConfiguration()
+	if err != nil {
 		return err
 	}
 

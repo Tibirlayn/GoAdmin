@@ -4,9 +4,11 @@ import (
 	//	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
+	"github.com/Tibirlayn/GoAdmin/pkg/models/billing"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -26,18 +28,17 @@ type SpecificItem struct {
 	Z        int64
 }
 
-type Gift struct {
-	MSysID           int64     // BIGINT = 196491, /* — ID сообщения от администратора */
-	MSvrNo           int16     // SMALLINT = 9991, /* — Номер вашего сервера */
-	MItemID          int       // INT = 409, /* — Номер предмета (подарка) */
-	MCnt             int       // INT = 1000, /* — Количество */
-	MAvailablePeriod int       // INT = 0, /* — Доступный период (сколько будет лежать в подароках) */
-	MPracticalPeriod int       // INT = 0, /* — Практический период (количество времени которое будет у предмета после получения)*/
-	MBindingType     uint8     // TINYINT = 0, /* — Под замком предмет или нет (Нет = 0 | Да = 1) */
-	MLimitedDate     time.Time // SMALLDATETIME = '2079-06-06', /* — Ограниченная дата */
-	MItemStatus      uint8     // TINYINT = 1; /* — Статус предмета */
-
-}
+//type Gift struct {
+//	MSysID           int64     // BIGINT = 196491, /* — ID сообщения от администратора */
+//	MSvrNo           int16     // SMALLINT = 9991, /* — Номер вашего сервера */
+//	MItemID          int       // INT = 409, /* — Номер предмета (подарка) */
+//	MCnt             int       // INT = 1000, /* — Количество */
+//	MAvailablePeriod int       // INT = 0, /* — Доступный период (сколько будет лежать в подароках) */
+//	MPracticalPeriod int       // INT = 0, /* — Практический период (количество времени которое будет у предмета после получения)*/
+//	MBindingType     uint8     // TINYINT = 0, /* — Под замком предмет или нет (Нет = 0 | Да = 1) */
+//	MLimitedDate     time.Time // SMALLDATETIME = '2079-06-06', /* — Ограниченная дата */
+//	MItemStatus      uint8     // TINYINT = 1; /* — Статус предмета */
+//}
 
 func GetInfoBossDrop(c *fiber.Ctx) error {
 	mid := c.Query("MID")
@@ -120,8 +121,40 @@ func GetSpecificProcItem(c *fiber.Ctx) error {
 }
 
 func PostGift(c *fiber.Ctx) error {
-	nameItem: c.Query("NameItem")
-	var itemID int
+	var data map[string]string
+	//nameItem: c.Query("NameItem")
+
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	id, _ := strconv.ParseInt(data["id"], 10, 64)
+	svr, _ := strconv.ParseInt(data["svr"], 10, 16)
+	itemid, _ := strconv.Atoi(data["itemid"])
+	cnt, _ := strconv.Atoi(data["cnt"])
+	aperiod, _ := strconv.Atoi(data["aperiod"])
+	pperiod, _ := strconv.Atoi(data["pperiod"])
+	binding, _ := strconv.ParseUint(data["binding"], 10, 8)
+	limitedDate, _ := time.Parse("2006-01-02 15:04:05", data["limited"])
+	status, _ := strconv.ParseUint(data["status"], 10, 8)
+
+	gift := billing.SysOrderList{
+		MSysID:           id,
+		MSvrNo:           int16(svr),
+		MItemID:          itemid,
+		MCnt:             cnt,
+		MAvailablePeriod: aperiod,
+		MPracticalPeriod: pperiod,
+		MBindingType:     uint8(binding),
+		MLimitedDate:     limitedDate,
+		MItemStatus:      uint8(status),
+	}
+
+	return c.JSON(gift)
+
+}
+
+/*	var itemID int
 	// Получение времени из параметра запроса с помощью c.Query
 	limitedDateStr := c.Query("LimitedDate")
 
@@ -130,19 +163,8 @@ func PostGift(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-
-	gift := Gift {
-		MSysID: 196491,
-		MSvrNo: 9991,
-		MItemID: itemID,
-		MCnt: c.QueryInt("Cnt"),
-		MAvailablePeriod: c.QueryInt("AvailablePeriod"),
-		MPracticalPeriod: c.QueryInt("PracticalPeriod"),
-		MBindingType: uint8(c.QueryInt("BindingType")),
-		MLimitedDate: limitedDate,
-		MItemStatus: 1,
-	}
-
+*/
+/*
 	ParmDB, err := config.ParmConfiguration()
 	if err != nil { return err }
 
@@ -156,9 +178,7 @@ func PostGift(c *fiber.Ctx) error {
 	if err := ParmDB.Raw(searchItemName, ""+nameItem+"").Scan(&itemID).Error; err != nil {
 		return err
 	}
-
-	
-}
+*/
 
 /*
 func GetInfoBossDrop(c *fiber.Ctx) error {

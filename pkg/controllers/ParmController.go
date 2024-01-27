@@ -9,6 +9,7 @@ import (
 
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
 	"github.com/Tibirlayn/GoAdmin/pkg/models/billing"
+	"github.com/Tibirlayn/GoAdmin/pkg/models/game"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -122,7 +123,6 @@ func GetSpecificProcItem(c *fiber.Ctx) error {
 
 func PostGift(c *fiber.Ctx) error {
 	var data map[string]string
-	//nameItem: c.Query("NameItem")
 
 	if err := c.BodyParser(&data); err != nil {
 		return err
@@ -138,32 +138,64 @@ func PostGift(c *fiber.Ctx) error {
 	limitedDate, _ := time.Parse("2006-01-02 15:04:05", data["limited"])
 	status, _ := strconv.ParseUint(data["status"], 10, 8)
 
-	gift := billing.SysOrderList{
-		MSysID:           id,
-		MSvrNo:           int16(svr),
-		MItemID:          itemid,
-		MCnt:             cnt,
-		MAvailablePeriod: aperiod,
-		MPracticalPeriod: pperiod,
-		MBindingType:     uint8(binding),
-		MLimitedDate:     limitedDate,
-		MItemStatus:      uint8(status),
-	}
-
-	return c.JSON(gift)
-
-}
-
-/*	var itemID int
-	// Получение времени из параметра запроса с помощью c.Query
-	limitedDateStr := c.Query("LimitedDate")
-
-	// Парсинг строки времени в значение time.Time
-	limitedDate, err := time.Parse("2006-01-02T15:04:05", limitedDateStr)
+	BillingDB, err := config.BillingConfiguration()
 	if err != nil {
 		return err
 	}
-*/
+	GameDB, err := config.GameConfiguration()
+	if err != nil {
+		return err
+	}
+
+	var owners []int
+
+	if err := GameDB.Model(&game.Pc{}).Distinct().Pluck("mOwner", &owners).Error; err != nil {
+		return err
+	}
+
+	tx := BillingDB.Begin()
+	for _, owner := range owners {
+		giftPc := billing.SysOrderList{
+			MSysID:           id,
+			MUserNo:          owner,
+			MSvrNo:           int16(svr),
+			MItemID:          itemid,
+			MCnt:             cnt,
+			MAvailablePeriod: aperiod,
+			MPracticalPeriod: pperiod,
+			MBindingType:     uint8(binding),
+			MLimitedDate:     limitedDate,
+			MItemStatus:      uint8(status),
+		}
+		if err := BillingDB.Omit("mRegDate", "mReceiptDate", "mReceiptPcNo", "mRecepitPcNm").Create(&giftPc).Error; err != nil {
+			tx.Rollback() // Откатить транзакцию при возникновении ошибки
+			return err
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "Gifts added",
+	})
+
+}
+
+//	gift := billing.SysOrderList{
+//		MSysID:           id,
+//		MSvrNo:           int16(svr),
+//		MItemID:          itemid,
+//		MCnt:             cnt,
+//		MAvailablePeriod: aperiod,
+//		MPracticalPeriod: pperiod,
+//		MBindingType:     uint8(binding),
+//		MLimitedDate:     limitedDate,
+//		MItemStatus:      uint8(status),
+//	}
+
+//GameDB.Select("MOwner").Distinct().Find(&owners)
 /*
 	ParmDB, err := config.ParmConfiguration()
 	if err != nil { return err }

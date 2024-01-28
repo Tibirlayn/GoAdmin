@@ -28,8 +28,10 @@ func Setup(app *fiber.App) {
 	// ParmController
 	app.Get("/api/drop-boss", controllers.GetInfoBossDrop) // Просмотр всех предметов у монстра
 	app.Get("/api/specific-proc-item", controllers.GetSpecificProcItem) // Просмотр координат печатей телепорта 
-	app.Post("/api/add-gift", controllers.PostGift)
-
-
+	
 	// BillingController
+	app.Post("/api/add-gift", controllers.PostGift) // добавить 1 подарок на аккаунт
+	app.Post("/api/add-gift-all", controllers.PostGiftAll) // добавить всем персонажам подарок
+	app.Post("/api/add-gift-pc", controllers.PostGiftPcName) // добавить подаро по имени персонажа
+	app.Delete("/api/delete-all-gift", controllers.DeleteAllGift) // удалить все подарки 
 }

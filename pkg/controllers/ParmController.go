@@ -4,6 +4,7 @@ import (
 	//	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
 	"github.com/gofiber/fiber/v2"
 )
@@ -114,4 +115,39 @@ func GetSpecificProcItem(c *fiber.Ctx) error {
 
 		return c.JSON(result)
 	}
+}
+
+// Просмотр DT_Refine
+func GetRefine(c *fiber.Ctx, pageNumber int, limitCnt int) error {
+
+	ParmDB, err := config.ParmConfiguration()
+	if err != nil {
+		return err
+	}
+
+	// Рассчитываем смещение (offset) и лимит записей на основе номера страницы
+	limit := limitCnt
+	offset := (pageNumber - 1) * limit
+
+	var results []struct {
+		ID               int     `gorm:"column:RID"`
+		ReceivedItem     int     `gorm:"column:RItemID0"`
+		ReceivedItemName string  `gorm:"column:IName"`
+		RecipeItemID     int     `gorm:"column:RItemID"`
+		RecipeItemName   string  `gorm:"column:IName"`
+		SuccessChance    float64 `gorm:"column:RSuccess"`
+	}
+
+	if err := ParmDB.Table("DT_Refine a").
+		Select("a.RID as ID, a.RItemID0, b.IName as ReceivedItemName, c.RItemID as RecipeItemID, b1.IName as RecipeItemName, a.RSuccess as SuccessChance").
+		Joins("INNER JOIN DT_Item as b ON a.RItemID0 = b.IID").
+		Joins("INNER JOIN DT_RefineMaterial as c ON a.RID = c.RID").
+		Joins("INNER JOIN DT_Item as b1 ON c.RItemID = b1.IID").
+		Offset(offset).
+		Limit(limit).
+		Scan(&results).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(results)
 }

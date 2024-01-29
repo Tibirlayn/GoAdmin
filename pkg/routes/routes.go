@@ -48,7 +48,23 @@ func Setup(app *fiber.App) {
 
 		return controllers.GetRefine(c, pageNumber, limitCnt)
 	}) 
-	
+	app.Get("/api/refine-by-name", func(c *fiber.Ctx) error {
+		pageNamber, err := strconv.Atoi(c.Query("page"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid page number",
+			})
+		}
+
+		limitCnt, err := strconv.Atoi(c.Query("limitCnt"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid limitCnt",
+			})
+		}
+
+		return controllers.GetRefineByName(c, pageNamber, limitCnt)
+	})
 	// BillingController
 	app.Post("/api/add-gift", controllers.PostGift) // добавить 1 подарок на аккаунт
 	app.Post("/api/add-gift-all", controllers.PostGiftAll) // добавить всем персонажам подарок

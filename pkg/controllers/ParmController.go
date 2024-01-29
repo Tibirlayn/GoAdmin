@@ -117,7 +117,7 @@ func GetSpecificProcItem(c *fiber.Ctx) error {
 	}
 }
 
-// Просмотр DT_Refine
+// Просмотр DT_Refine > сделать поиск по названию
 func GetRefine(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 
 	ParmDB, err := config.ParmConfiguration()
@@ -151,3 +151,65 @@ func GetRefine(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 
 	return c.JSON(results)
 }
+
+func GetRefineByName(c *fiber.Ctx, pageNumber int, limitCnt int) error {
+	ParmBD, err := config.ParmConfiguration()
+	if err != nil {
+		return err
+	}
+
+	limit := limitCnt
+	offset := (pageNumber -1) * limit
+
+	var results []struct {
+		ID               int     `gorm:"column:RID"`
+		ReceivedItem     int     `gorm:"column:RItemID0"`
+		ReceivedItemName string  `gorm:"column:IName"`
+		RecipeItemName   string  `gorm:"column:IName"`
+		SuccessChance    float64 `gorm:"column:RSuccess"`
+	}
+
+	if err := ParmBD.Table("DT_Refine a").
+	Select("a.RID, a.RItemID0 as ReceivedItem, b.IName as ReceivedItemName, STRING_AGG(b1.IName, ', ') as RecipeItemName, a.RSuccess as SuccessChance").
+	Joins("INNER JOIN DT_Item b ON a.RItemID0 = b.IID").
+	Joins("INNER JOIN DT_RefineMaterial c ON a.RID = c.RID").
+	Joins("INNER JOIN DT_Item b1 ON c.RItemID = b1.IID").
+	Group("a.RID, a.RItemID0, b.IName, a.RSuccess").
+	Order("RID").
+	Offset(offset).
+	Limit(limit).
+	Scan(&results).Error; err != nil {
+	return err
+	}
+
+	return c.JSON(results)
+}
+
+/* 
+SELECT
+a.RID, 
+a.RItemID0 as 'Получаемый предмет',
+b.IName as 'Название получаемого предмета',
+STRING_AGG(b1.IName, ', ') as 'Названия предметов из рецепта',
+a.RSuccess as 'Шанс проточки'
+FROM DT_Refine as a
+INNER JOIN DT_Item as b on (a.RItemID0 = b.IID)
+INNER JOIN DT_RefineMaterial as c on (a.RID = c.RID)
+INNER JOIN DT_Item as b1 on (c.RItemID = b1.IID)
+GROUP BY a.RID, a.RItemID0, b.IName, a.RSuccess
+ORDER BY [RID];
+ */
+
+/*  
+SELECT
+a.RID,
+a.RItemID0 as 'Получаемый предмет',
+b.IName as 'Навание получаемого предмета',
+c.RItemID as 'Рецепт',
+b1.IName as 'Название предмета из рецепта',
+a.RSuccess as 'Шанс проточки'
+FROM DT_Refine as a
+INNER JOIN DT_Item as b on (a.RItemID0 = b.IID)
+INNER JOIN DT_RefineMaterial as c on (a.RID = c.RID)
+INNER JOIN DT_Item as b1 on (c.RItemID = b1.IID)
+ */

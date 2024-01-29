@@ -30,7 +30,7 @@ func Setup(app *fiber.App) {
 	// ParmController
 	app.Get("/api/drop-boss", controllers.GetInfoBossDrop) // Просмотр всех предметов у монстра
 	app.Get("/api/specific-proc-item", controllers.GetSpecificProcItem) // Просмотр координат печатей телепорта 
-	//app.Get("/api/refine", controllers.GetRefine) // Просмотр DT_Refine
+	
 	// Просмотр DT_Refine
 	app.Get("/api/refine", func(c *fiber.Ctx) error {
 		pageNumber, err := strconv.Atoi(c.Query("page"))
@@ -65,6 +65,24 @@ func Setup(app *fiber.App) {
 
 		return controllers.GetRefineByName(c, pageNamber, limitCnt)
 	})
+	app.Get("/api/item-resource", func(c *fiber.Ctx) error {
+		pageNumber, err := strconv.Atoi(c.Query("page"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid page number",
+			})
+		}
+
+		limitCnt, err := strconv.Atoi(c.Query("limitCnt"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid limitCnt",
+			})
+		}
+
+		return controllers.GetItemResource(c, pageNumber, limitCnt)
+	})
+
 	// BillingController
 	app.Post("/api/add-gift", controllers.PostGift) // добавить 1 подарок на аккаунт
 	app.Post("/api/add-gift-all", controllers.PostGiftAll) // добавить всем персонажам подарок

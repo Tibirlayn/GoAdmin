@@ -25,18 +25,6 @@ type SpecificItem struct {
 	Z        int64
 }
 
-//type Gift struct {
-//	MSysID           int64     // BIGINT = 196491, /* — ID сообщения от администратора */
-//	MSvrNo           int16     // SMALLINT = 9991, /* — Номер вашего сервера */
-//	MItemID          int       // INT = 409, /* — Номер предмета (подарка) */
-//	MCnt             int       // INT = 1000, /* — Количество */
-//	MAvailablePeriod int       // INT = 0, /* — Доступный период (сколько будет лежать в подароках) */
-//	MPracticalPeriod int       // INT = 0, /* — Практический период (количество времени которое будет у предмета после получения)*/
-//	MBindingType     uint8     // TINYINT = 0, /* — Под замком предмет или нет (Нет = 0 | Да = 1) */
-//	MLimitedDate     time.Time // SMALLDATETIME = '2079-06-06', /* — Ограниченная дата */
-//	MItemStatus      uint8     // TINYINT = 1; /* — Статус предмета */
-//}
-
 func GetInfoBossDrop(c *fiber.Ctx) error {
 	mid := c.Query("MID")
 	name := c.Query("MName")
@@ -152,6 +140,7 @@ func GetRefine(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	return c.JSON(results)
 }
 
+// Названия предметов из рецепта в одну строку
 func GetRefineByName(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	ParmBD, err := config.ParmConfiguration()
 	if err != nil {
@@ -159,7 +148,7 @@ func GetRefineByName(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	}
 
 	limit := limitCnt
-	offset := (pageNumber -1) * limit
+	offset := (pageNumber - 1) * limit
 
 	var results []struct {
 		ID               int     `gorm:"column:RID"`
@@ -170,46 +159,51 @@ func GetRefineByName(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	}
 
 	if err := ParmBD.Table("DT_Refine a").
-	Select("a.RID, a.RItemID0 as ReceivedItem, b.IName as ReceivedItemName, STRING_AGG(b1.IName, ', ') as RecipeItemName, a.RSuccess as SuccessChance").
-	Joins("INNER JOIN DT_Item b ON a.RItemID0 = b.IID").
-	Joins("INNER JOIN DT_RefineMaterial c ON a.RID = c.RID").
-	Joins("INNER JOIN DT_Item b1 ON c.RItemID = b1.IID").
-	Group("a.RID, a.RItemID0, b.IName, a.RSuccess").
-	Order("RID").
-	Offset(offset).
-	Limit(limit).
-	Scan(&results).Error; err != nil {
-	return err
+		Select("a.RID, a.RItemID0 as ReceivedItem, b.IName as ReceivedItemName, STRING_AGG(b1.IName, ', ') as RecipeItemName, a.RSuccess as SuccessChance").
+		Joins("INNER JOIN DT_Item b ON a.RItemID0 = b.IID").
+		Joins("INNER JOIN DT_RefineMaterial c ON a.RID = c.RID").
+		Joins("INNER JOIN DT_Item b1 ON c.RItemID = b1.IID").
+		Group("a.RID, a.RItemID0, b.IName, a.RSuccess").
+		Order("RID").
+		Offset(offset).
+		Limit(limit).
+		Scan(&results).Error; err != nil {
+		return err
 	}
 
 	return c.JSON(results)
 }
 
-/* 
-SELECT
-a.RID, 
-a.RItemID0 as 'Получаемый предмет',
-b.IName as 'Название получаемого предмета',
-STRING_AGG(b1.IName, ', ') as 'Названия предметов из рецепта',
-a.RSuccess as 'Шанс проточки'
-FROM DT_Refine as a
-INNER JOIN DT_Item as b on (a.RItemID0 = b.IID)
-INNER JOIN DT_RefineMaterial as c on (a.RID = c.RID)
-INNER JOIN DT_Item as b1 on (c.RItemID = b1.IID)
-GROUP BY a.RID, a.RItemID0, b.IName, a.RSuccess
-ORDER BY [RID];
- */
+// Запрос на просмотр DT_ItemResource:
+func GetItemResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
+	ParmDB, err := config.ParmConfiguration()
+	if err != nil {
+		return err
+	}
 
-/*  
-SELECT
-a.RID,
-a.RItemID0 as 'Получаемый предмет',
-b.IName as 'Навание получаемого предмета',
-c.RItemID as 'Рецепт',
-b1.IName as 'Название предмета из рецепта',
-a.RSuccess as 'Шанс проточки'
-FROM DT_Refine as a
-INNER JOIN DT_Item as b on (a.RItemID0 = b.IID)
-INNER JOIN DT_RefineMaterial as c on (a.RID = c.RID)
-INNER JOIN DT_Item as b1 on (c.RItemID = b1.IID)
- */
+	limit := limitCnt
+	offset := (pageNumber -1) * limit
+
+	var results []struct {
+		RID       int    `gorm:"column:RID"`
+		RType     int    `gorm:"column:Type"`
+		ROwnerID  int    `gorm:"column:OwnerID"`
+		IName     string    `gorm:"column:Name"`
+		RFileName string `gorm:"column:FileName"`
+		RPosX     int    `gorm:"column:CoordinateX"`
+		RPosY     int    `gorm:"column:CoordinateY"`
+	}
+
+	if err := ParmDB.Table("DT_ItemResource a").
+		Select("a.RID as RID, a.RType as Type, a.ROwnerID as OwnerID, b.IName as Name, "+
+			"CASE a.RType WHEN 2 THEN '.DDS:' WHEN 0 THEN 'MODEL:' END as FileType, "+
+			"a.RFileName as FileName, a.RPosX as CoordinateX, a.RPosY as CoordinateY").
+		Joins("LEFT OUTER JOIN DT_Item b ON b.IID = a.ROwnerID").
+		Limit(limit).
+		Offset(offset).
+		Scan(&results).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(results)
+}

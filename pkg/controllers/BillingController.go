@@ -220,3 +220,13 @@ func PostGiftPcName(c *fiber.Ctx) error {
 		"message": "Gifts added",
 	})
 }
+
+//SQL Запрос. Добавить предмет в ШОП
+func PostAddShopItem(c *fiber.Ctx) error {
+
+
+	
+	return c.JSON(fiber.Map{
+		"status": "добавлен новый шоп предмет",
+	})
+}

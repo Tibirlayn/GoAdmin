@@ -182,21 +182,21 @@ func GetItemResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	}
 
 	limit := limitCnt
-	offset := (pageNumber -1) * limit
+	offset := (pageNumber - 1) * limit
 
 	var results []struct {
 		RID       int    `gorm:"column:RID"`
 		RType     int    `gorm:"column:Type"`
 		ROwnerID  int    `gorm:"column:OwnerID"`
-		IName     string    `gorm:"column:Name"`
+		IName     string `gorm:"column:Name"`
 		RFileName string `gorm:"column:FileName"`
 		RPosX     int    `gorm:"column:CoordinateX"`
 		RPosY     int    `gorm:"column:CoordinateY"`
 	}
 
 	if err := ParmDB.Table("DT_ItemResource a").
-		Select("a.RID as RID, a.RType as Type, a.ROwnerID as OwnerID, b.IName as Name, "+
-			"CASE a.RType WHEN 2 THEN '.DDS:' WHEN 0 THEN 'MODEL:' END as FileType, "+
+		Select("a.RID as RID, a.RType as Type, a.ROwnerID as OwnerID, b.IName as Name, " +
+			"CASE a.RType WHEN 2 THEN '.DDS:' WHEN 0 THEN 'MODEL:' END as FileType, " +
 			"a.RFileName as FileName, a.RPosX as CoordinateX, a.RPosY as CoordinateY").
 		Joins("LEFT OUTER JOIN DT_Item b ON b.IID = a.ROwnerID").
 		Limit(limit).
@@ -218,21 +218,23 @@ func GetMonsterResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	offset := (pageNumber - 1) * limit
 
 	var result []struct {
-		RID int `gorm:"column:ID"`
-		ROwnerID int `gorm:"column:OwnerID"`
-		MName string `gorm:"column:Name"`
-		RType int `gorm:"column:RType"`
+		RID       int    `gorm:"column:ID"`
+		ROwnerID  int    `gorm:"column:OwnerID"`
+		MName     string `gorm:"column:Name"`
+		RType     string `gorm:"column:NameTexture"`
 		RFileName string `gorm:"column:NumberTXT"`
 	}
 
+	//CASE DT_MonsterResource.RType WHEN 0 THEN 'TEXTURE:' END AS 'Имя текстуры',
+
 	if err := ParmDB.Table("DT_MonsterResource as a").
-	Select("a.RID as ID, a.ROwnerID as OwnerID, b.MName as Name, " +
-	"CASE a.RType WHEN 0 THEN 'TEXTURE:' END as 'Name Texture', a.RFileName as NumberTXT").
-	Joins("LEFT JOIN DT_Monster AS b ON b.MID = a.ROwnerID").
-	Offset(offset).
-	Limit(limit).
-	Scan(&result).Error; err != nil {
-		return err;
+		Select("a.RID as ID, a.ROwnerID as OwnerID, b.MName as Name," +
+			"CASE a.RType WHEN 0 THEN 'TEXTURE:' END AS NameTexture, a.RFileName as NumberTXT").
+		Joins("LEFT JOIN DT_Monster AS b ON b.MID = a.ROwnerID").
+		Limit(limit).
+		Offset(offset).
+		Scan(&result).Error; err != nil {
+		return err
 	}
 
 	return c.JSON(result)

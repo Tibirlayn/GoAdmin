@@ -89,7 +89,7 @@ func Setup(app *fiber.App) {
 			return err
 		}
 
-		limitCnt, err := strconv.Atoi(c.Query())
+		limitCnt, err := strconv.Atoi(c.Query("limitCnt"))
 		if err != nil {
 			return err
 		}

@@ -225,8 +225,35 @@ func PostGiftPcName(c *fiber.Ctx) error {
 func PostAddShopItem(c *fiber.Ctx) error {
 
 
-	
 	return c.JSON(fiber.Map{
 		"status": "добавлен новый шоп предмет",
 	})
 }
+
+// DECLARE @ItemID INT = 8531 /* ID предмета*/
+// DECLARE @ICount INT = 1 /* Количество предметов */
+// DECLARE @IName VARCHAR(40) = 'Особое Зельe Жизни' /* Название предмета */
+// DECLARE @IDesc VARCHAR(500) = 'Средство, восстанавливающее большое количество здоровья.' /* Описание предмета */
+// DECLARE @IPrice INT = 300 /* Цена */
+// DECLARE @Istatus INT = 1 /* Статус 0 проклятый, 1-обычный, 2-благой */
+// DECLARE @ICat INT = 3 /* Вкладка шопа 1,2,3,4 */
+// DECLARE @IDay INT = 30 /* Время на предмете в днях*/
+// DECLARE @IHour INT = 0 /* Время эффекта предмета в днях */
+// DECLARE @SvrNo INT = 1164 /* Номер сервера */
+
+// -- НИЖЕ НИЧЕГО НЕ ТРОГАТЬ --
+// IF NOT EXISTS (SELECT 1 FROM FNLParm.dbo.DT_Item WHERE IID = @ItemID AND IIsCharge = 1)
+// UPDATE FNLParm.dbo.DT_Item SET IIsCharge = 1 WHERE IID = @ItemID
+
+// DECLARE @Date DATETIME SET @Date = GETDATE() /* Сегодняшняя дата */
+// DECLARE @GIid INT = (SELECT MAX(GoldItemID) FROM TBLGoldItem) + 1
+// DECLARE @GIOrder INT = (SELECT MAX(OrderNO) FROM TBLCategoryAssign) + 1
+
+// IF @GIid IS NULL SET @GIid = 1
+// IF @GIOrder IS NULL SET @GIOrder = 1
+// INSERT INTO TBLGoldItem (GoldItemID, IID, ItemName, ItemDesc, OriginalGoldPrice, GoldPrice, ItemCategory, IsPackage, Status, AvailablePeriod, Count, PracticalPeriod, RegistAdmin)
+// VALUES (@GIid, @ItemID, @IName, @IDesc, @IPrice, @IPrice, @ICat, 0, @Istatus, @IDay, @ICount, @IHour, 'R2Genius')
+// INSERT INTO TBLCategoryAssign (CategoryID, GoldItemID, Status, OrderNO, RegistDate, RegistAdmin)
+// VALUES (@ICat, @GIid, 1, @GIOrder, @Date, 'R2Genius')
+// INSERT INTO TBLGoldItemSupportSvr(GoldItemID, mSvrNo)
+// VALUES (@GIid, @SvrNo)

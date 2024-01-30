@@ -207,3 +207,33 @@ func GetItemResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 
 	return c.JSON(results)
 }
+
+func GetMonsterResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
+	ParmDB, err := config.ParmConfiguration()
+	if err != nil {
+		return err
+	}
+
+	limit := limitCnt
+	offset := (pageNumber - 1) * limit
+
+	var result []struct {
+		RID int `gorm:"column:ID"`
+		ROwnerID int `gorm:"column:OwnerID"`
+		MName string `gorm:"column:Name"`
+		RType int `gorm:"column:RType"`
+		RFileName string `gorm:"column:NumberTXT"`
+	}
+
+	if err := ParmDB.Table("DT_MonsterResource as a").
+	Select("a.RID as ID, a.ROwnerID as OwnerID, b.MName as Name, " +
+	"CASE a.RType WHEN 0 THEN 'TEXTURE:' END as 'Name Texture', a.RFileName as NumberTXT").
+	Joins("LEFT JOIN DT_Monster AS b ON b.MID = a.ROwnerID").
+	Offset(offset).
+	Limit(limit).
+	Scan(&result).Error; err != nil {
+		return err;
+	}
+
+	return c.JSON(result)
+}

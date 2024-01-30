@@ -83,6 +83,21 @@ func Setup(app *fiber.App) {
 		return controllers.GetItemResource(c, pageNumber, limitCnt)
 	})
 
+	app.Get("/api/monster-resource", func(c *fiber.Ctx) error {
+		pageNumber, err := strconv.Atoi(c.Query("page"))
+		if err != nil {
+			return err
+		}
+
+		limitCnt, err := strconv.Atoi(c.Query())
+		if err != nil {
+			return err
+		}
+
+		return controllers.GetMonsterResource(c, pageNumber, limitCnt)
+	})
+
+
 	// BillingController
 	app.Post("/api/add-gift", controllers.PostGift) // добавить 1 подарок на аккаунт
 	app.Post("/api/add-gift-all", controllers.PostGiftAll) // добавить всем персонажам подарок

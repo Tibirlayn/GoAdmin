@@ -1,5 +1,5 @@
 package utils
-
+/* 
 import (
 	"encoding/json"
 	"io"
@@ -13,3 +13,4 @@ func ParceBody(r *http.Request, x interface{}) {
 		}
 	}
 }
+ */

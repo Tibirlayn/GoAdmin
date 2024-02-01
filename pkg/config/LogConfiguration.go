@@ -1,35 +1,42 @@
 package config
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
-	_ "github.com/denisenkom/go-mssqldb"
+    "gorm.io/driver/sqlserver"  
+    "gorm.io/gorm"
 )
 
-func LogConfiguration() (*sql.DB, error) {
+func LogConfiguration() (*gorm.DB, error) {
 	cfg, err := LoadConfig()
     if err != nil {
         fmt.Println("Error loading config:", err)
         return nil, err
     }
 
-	//подлючение к БД
-    connStringLog := fmt.Sprintf("server=%s;user id=%s;password=%s;logs=%s;encrypt=disable", cfg.Log.Server, cfg.Log.User, cfg.Log.Password, cfg.Log.DBname)
-    db_log, err := sql.Open("sqlserver", connStringLog)
+	//подлючение к БД ...
+    dns := fmt.Sprintf("sqlserver://%s:%s@%s:%s?database=%s&encrypt=disable", cfg.Log.User, cfg.Log.Password, cfg.Log.Server, cfg.Log.Port, cfg.Log.DBname)
+    db_log, err := gorm.Open(sqlserver.Open(dns), &gorm.Config{})
     if err != nil {
         log.Fatal(err)
+        return nil, err
     }
-    defer db_log.Close()
+
+    // Получаем объект базы данных gorm.DB и отложенно закрываем его соединение
+    dbSQL, err := db_log.DB()
+    if err != nil {
+        return nil, err
+    }
 
 	// Использование конфигурации
-	fmt.Println("Server:", cfg.Log.Server)
+    fmt.Println("Server:", cfg.Log.Server)
 	fmt.Println("User:", cfg.Log.User)
 	fmt.Println("Passeord:", cfg.Log.Password)
-    fmt.Println("FNLLog:", cfg.Log.DBname)
+    fmt.Println("Port:", cfg.Log.Port)
+    fmt.Println("FNLParm:", cfg.Log.DBname)
 
     // Проверка подключения
-    err = db_log.Ping()
+    err = dbSQL.Ping()
 	if err != nil {
         fmt.Println("Ошибка подключения к базе данных:", err)
         fmt.Println("-----------------------------------------")

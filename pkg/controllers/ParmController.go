@@ -208,6 +208,7 @@ func GetItemResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	return c.JSON(results)
 }
 
+// Запрос на просмотр DT_MonsterResource
 func GetMonsterResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	ParmDB, err := config.ParmConfiguration()
 	if err != nil {
@@ -226,7 +227,6 @@ func GetMonsterResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	}
 
 	//CASE DT_MonsterResource.RType WHEN 0 THEN 'TEXTURE:' END AS 'Имя текстуры',
-
 	if err := ParmDB.Table("DT_MonsterResource as a").
 		Select("a.RID as ID, a.ROwnerID as OwnerID, b.MName as Name," +
 			"CASE a.RType WHEN 0 THEN 'TEXTURE:' END AS NameTexture, a.RFileName as NumberTXT").
@@ -239,3 +239,6 @@ func GetMonsterResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 
 	return c.JSON(result)
 }
+
+// SQL Запрос. Посмотреть дроп из золотого/изумрудного сундука + шансы -- (в планах)
+

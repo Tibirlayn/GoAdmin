@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
 	"github.com/Tibirlayn/GoAdmin/pkg/models/billing"
 	"github.com/Tibirlayn/GoAdmin/pkg/models/game"
+	"github.com/Tibirlayn/GoAdmin/pkg/models/parm"
 	"github.com/gofiber/fiber/v2"
 )
 
+// Выдать падарки всем персонажам
 func DeleteAllGift(c *fiber.Ctx) error {
 	BillingDB, err := config.BillingConfiguration()
 	if err != nil {
@@ -17,7 +20,7 @@ func DeleteAllGift(c *fiber.Ctx) error {
 	}
 
 	tx := BillingDB.Begin()
-	if err := BillingDB.Unscoped().Where("1 = 1").Delete(&billing.SysOrderList{}).Error; err != nil { 
+	if err := BillingDB.Unscoped().Where("1 = 1").Delete(&billing.SysOrderList{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -31,7 +34,7 @@ func DeleteAllGift(c *fiber.Ctx) error {
 	})
 }
 
-// выдать только один подарок на сервер
+// Выдать только один подарок на сервер
 func PostGift(c *fiber.Ctx) error {
 	var data map[string]string
 
@@ -176,23 +179,27 @@ func PostGiftPcName(c *fiber.Ctx) error {
 	limitedDate, _ := time.Parse("2006-01-02 15:04:05", data["limited"]) /* — Ограниченная дата */
 	status, _ := strconv.ParseUint(data["status"], 10, 8)                /* — Статус предмета */
 
+	// Подключение к БД Billing
 	BillingDB, err := config.BillingConfiguration()
 	if err != nil {
 		return err
 	}
+	// Подключение к БД GameDB
 	GameDB, err := config.GameConfiguration()
 	if err != nil {
 		return err
 	}
-
+	// Создаем массив
 	var owners []int
 
+	// поиск персонажа в БД GameDB и записываем в массив owners
+	// (Pluck - этот метод производит выборку определенного столбца ("mOwner") из результата запроса и сохраняет значения в срез "owners")
 	if err := GameDB.Model(&game.Pc{}).Where("mNm = ?", mNm).Pluck("mOwner", &owners).Error; err != nil {
 		fmt.Println("Error GameDB.Model(&game.Pc{})")
 		return err
 	}
 
-	tx := BillingDB.Begin()
+	tx := BillingDB.Begin() // создаем транзакцию
 	for _, owner := range owners {
 		giftPc := billing.SysOrderList{
 			MSysID:           id,
@@ -206,12 +213,14 @@ func PostGiftPcName(c *fiber.Ctx) error {
 			MLimitedDate:     limitedDate,
 			MItemStatus:      uint8(status),
 		}
+		// omit игнорирует на запись (данные поля заполняются автоматически в бд или их не нужно заполнять)
 		if err := BillingDB.Omit("mRegDate", "mReceiptDate", "mReceiptPcNo", "mRecepitPcNm").Create(&giftPc).Error; err != nil {
 			tx.Rollback() // Откатить транзакцию при возникновении ошибки
 			return err
 		}
 	}
 
+	// сохраняем изменения
 	if err := tx.Commit().Error; err != nil {
 		return err
 	}
@@ -221,29 +230,64 @@ func PostGiftPcName(c *fiber.Ctx) error {
 	})
 }
 
-//SQL Запрос. Добавить предмет в ШОП
+// SQL Запрос. Добавить предмет в ШОП
 func PostAddShopItem(c *fiber.Ctx) error {
+	var data map[string]string
+
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	itemID, _ := strconv.Atoi(data["itemID"])         // DECLARE @ItemID INT = 8531 /* ID предмета*/
+	count, _ := strconv.Atoi(data["count"])           // DECLARE @ICount INT = 1 /* Количество предметов */
+	name, _ := data["name"]                           // DECLARE @IName VARCHAR(40) = 'Особое Зельe Жизни' /* Название предмета */
+	desc, _ := data["desc"]                           // DECLARE @IDesc VARCHAR(500) = 'Средство, восстанавливающее большое количество здоровья.' /* Описание предмета */
+	price, _ := data["price"]                         // DECLARE @IPrice INT = 300 /* Цена */
+	status, _ := data["status"]                       // DECLARE @Istatus INT = 1 /* Статус 0 проклятый, 1-обычный, 2-благой */
+	cat, _ := data["itemCategory"]                    // DECLARE @ICat INT = 3 /* Вкладка шопа 1,2,3,4 */
+	day, _ := strconv.Atoi("AvailablePeriod")         // DECLARE @IDay INT = 30 /* Время на предмете в днях*/
+	hour, _ := strconv.Atoi("PracticalPeriod")        // DECLARE @IHour INT = 0 /* Время эффекта предмета в днях */
+	SvrNo, _ := strconv.ParseInt(data["svr"], 10, 16) // DECLARE @SvrNo INT = 1164 /* Номер сервера */
+
+	BillingDB, err := config.BillingConfiguration()
+	if err != nil {
+		return err
+	}
+
+	ParmDB, err := config.ParmConfiguration()
+	if err != nil {
+		return err
+	}
+
+	var item parm.Item
+
+	// Проверка, существует ли запись с указанным ItemID и IIsCharge = 1
+	result := ParmDB.First(&item, "IID = ? AND IIsCharge = ?", itemID, 1)
+
+	if result.RowsAffected == 0 {
+		// Если записи не существует, выполняем обновление
+		ParmDB.Model(&parm.Item{}).Where("IID = ?", itemID).Update("IIsCharge", 1)
+	}
+
+	currentTime = time.Now() /* Текущая дата */
+	var maxGoldenID int
+	var maxOrder int
+	if err := BillingDB.Model(&billing.GoldItem{}).Select("MAX(GoldItemID)").Find(&billing.GoldItem{}).Scan(&maxGoldenID).Error; err != nil {
+		return err
+	}
+	if err := BillingDB.Model(&billing.CategoryAssign{}).Select("MAX(OrderNO)").Find(&billing.CategoryAssign{}).Scan(&maxOrder).Error; err != nil {
+		return err
+	}
+
+	maxGoldenID += 1
+	maxOrder += 1
+
 
 
 	return c.JSON(fiber.Map{
 		"status": "добавлен новый шоп предмет",
 	})
 }
-
-// DECLARE @ItemID INT = 8531 /* ID предмета*/
-// DECLARE @ICount INT = 1 /* Количество предметов */
-// DECLARE @IName VARCHAR(40) = 'Особое Зельe Жизни' /* Название предмета */
-// DECLARE @IDesc VARCHAR(500) = 'Средство, восстанавливающее большое количество здоровья.' /* Описание предмета */
-// DECLARE @IPrice INT = 300 /* Цена */
-// DECLARE @Istatus INT = 1 /* Статус 0 проклятый, 1-обычный, 2-благой */
-// DECLARE @ICat INT = 3 /* Вкладка шопа 1,2,3,4 */
-// DECLARE @IDay INT = 30 /* Время на предмете в днях*/
-// DECLARE @IHour INT = 0 /* Время эффекта предмета в днях */
-// DECLARE @SvrNo INT = 1164 /* Номер сервера */
-
-// -- НИЖЕ НИЧЕГО НЕ ТРОГАТЬ --
-// IF NOT EXISTS (SELECT 1 FROM FNLParm.dbo.DT_Item WHERE IID = @ItemID AND IIsCharge = 1)
-// UPDATE FNLParm.dbo.DT_Item SET IIsCharge = 1 WHERE IID = @ItemID
 
 // DECLARE @Date DATETIME SET @Date = GETDATE() /* Сегодняшняя дата */
 // DECLARE @GIid INT = (SELECT MAX(GoldItemID) FROM TBLGoldItem) + 1

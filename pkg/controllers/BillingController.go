@@ -230,7 +230,7 @@ func PostGiftPcName(c *fiber.Ctx) error {
 	})
 }
 
-// SQL Запрос. Добавить предмет в ШОП
+// SQL Запрос. Добавить предмет в ШОП -> нужно тест
 func PostAddShopItem(c *fiber.Ctx) error {
 	var data map[string]string
 
@@ -238,16 +238,16 @@ func PostAddShopItem(c *fiber.Ctx) error {
 		return err
 	}
 
-	itemID, _ := strconv.Atoi(data["itemID"])         // DECLARE @ItemID INT = 8531 /* ID предмета*/
-	count, _ := strconv.Atoi(data["count"])           // DECLARE @ICount INT = 1 /* Количество предметов */
-	name, _ := data["name"]                           // DECLARE @IName VARCHAR(40) = 'Особое Зельe Жизни' /* Название предмета */
-	desc, _ := data["desc"]                           // DECLARE @IDesc VARCHAR(500) = 'Средство, восстанавливающее большое количество здоровья.' /* Описание предмета */
-	price, _ := data["price"]                         // DECLARE @IPrice INT = 300 /* Цена */
-	status, _ := data["status"]                       // DECLARE @Istatus INT = 1 /* Статус 0 проклятый, 1-обычный, 2-благой */
-	cat, _ := data["itemCategory"]                    // DECLARE @ICat INT = 3 /* Вкладка шопа 1,2,3,4 */
-	day, _ := strconv.Atoi("AvailablePeriod")         // DECLARE @IDay INT = 30 /* Время на предмете в днях*/
-	hour, _ := strconv.Atoi("PracticalPeriod")        // DECLARE @IHour INT = 0 /* Время эффекта предмета в днях */
-	SvrNo, _ := strconv.ParseInt(data["svr"], 10, 16) // DECLARE @SvrNo INT = 1164 /* Номер сервера */
+	itemID, _ := strconv.Atoi(data["itemID"])                // DECLARE @ItemID INT = 8531 /* ID предмета*/
+	count, _ := strconv.Atoi(data["count"])                  // DECLARE @ICount INT = 1 /* Количество предметов */
+	name, _ := data["name"]                                  // DECLARE @IName VARCHAR(40) = 'Особое Зельe Жизни' /* Название предмета */
+	desc, _ := data["desc"]                                  // DECLARE @IDesc VARCHAR(500) = 'Средство, восстанавливающее большое количество здоровья.' /* Описание предмета */
+	price, _ := strconv.Atoi(data["price"])                  // DECLARE @IPrice INT = 300 /* Цена */
+	status, _ := data["status"]                              // DECLARE @Istatus INT = 1 /* Статус 0 проклятый, 1-обычный, 2-благой */
+	cat, _ := strconv.ParseInt(data["itemCategory"], 10, 16) // DECLARE @ICat INT = 3 /* Вкладка шопа 1,2,3,4 */
+	day, _ := strconv.Atoi("AvailablePeriod")                // DECLARE @IDay INT = 30 /* Время на предмете в днях*/
+	hour, _ := strconv.Atoi("PracticalPeriod")               // DECLARE @IHour INT = 0 /* Время эффекта предмета в днях */
+	svrNo, _ := strconv.ParseInt(data["svr"], 10, 16)        // DECLARE @SvrNo INT = 1164 /* Номер сервера */
 
 	BillingDB, err := config.BillingConfiguration()
 	if err != nil {
@@ -269,9 +269,11 @@ func PostAddShopItem(c *fiber.Ctx) error {
 		ParmDB.Model(&parm.Item{}).Where("IID = ?", itemID).Update("IIsCharge", 1)
 	}
 
-	currentTime = time.Now() /* Текущая дата */
-	var maxGoldenID int
-	var maxOrder int
+	currentTime := time.Now() /* Текущая дата */
+	var maxGoldenID int64
+	var maxOrder int16
+	var packageGold = "0"
+	var admin = "GoAdmin"
 	if err := BillingDB.Model(&billing.GoldItem{}).Select("MAX(GoldItemID)").Find(&billing.GoldItem{}).Scan(&maxGoldenID).Error; err != nil {
 		return err
 	}
@@ -279,10 +281,65 @@ func PostAddShopItem(c *fiber.Ctx) error {
 		return err
 	}
 
-	maxGoldenID += 1
-	maxOrder += 1
+	maxGoldenID += 1 // получаем max число id в таблице GoldItem и + 1
+	maxOrder += 1    // получаем max число id в таблице CategoryAssign и + 1
 
+	if maxGoldenID == 0 {
+		maxGoldenID = 1
+	}
+	if maxOrder == 0 {
+		maxOrder = 1
+	}
 
+	newTBLGoldItem := billing.GoldItem{
+		GoldItemID:        maxGoldenID,
+		IID:               itemID,
+		ItemName:          name,
+		ItemDesc:          desc,
+		OriginalGoldPrice: price,
+		GoldPrice:         price,
+		ItemCategory:      int16(cat),
+		IsPackage:         packageGold,
+		Status:            status,
+		AvailablePeriod:   day,
+		Count:             count,
+		PracticalPeriod:   hour,
+		RegistAdmin:       admin,
+	}
+
+	tx := BillingDB.Begin()
+	if err := BillingDB.Omit("ItemImage", "RegistDate", "RegistIP", "UpdateDate", "UpdateAdmin", "UpdateIP", "ItemNameRUS", "ItemDescRUS").Create(&newTBLGoldItem).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	newTBLCategoryAssign := billing.CategoryAssign{
+		CategoryID:  int16(cat),
+		GoldItemID:  maxGoldenID,
+		Status:      "1",
+		OrderNO:     maxOrder,
+		RegistDate:  currentTime,
+		RegistAdmin: admin,
+	}
+
+	if err := BillingDB.Omit("RegistIP", "UpdateDate", "UpdateAdmin", "UpdateIP").Create(&newTBLCategoryAssign).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	newTBLGoldItemSupportSvr := billing.GoldItemSupportSvr{
+		GoldItemID: maxGoldenID,
+		MSvrNo:     int16(svrNo),
+	}
+
+	if err := BillingDB.Create(&newTBLGoldItemSupportSvr).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
 
 	return c.JSON(fiber.Map{
 		"status": "добавлен новый шоп предмет",
@@ -292,12 +349,13 @@ func PostAddShopItem(c *fiber.Ctx) error {
 // DECLARE @Date DATETIME SET @Date = GETDATE() /* Сегодняшняя дата */
 // DECLARE @GIid INT = (SELECT MAX(GoldItemID) FROM TBLGoldItem) + 1
 // DECLARE @GIOrder INT = (SELECT MAX(OrderNO) FROM TBLCategoryAssign) + 1
-
 // IF @GIid IS NULL SET @GIid = 1
 // IF @GIOrder IS NULL SET @GIOrder = 1
 // INSERT INTO TBLGoldItem (GoldItemID, IID, ItemName, ItemDesc, OriginalGoldPrice, GoldPrice, ItemCategory, IsPackage, Status, AvailablePeriod, Count, PracticalPeriod, RegistAdmin)
 // VALUES (@GIid, @ItemID, @IName, @IDesc, @IPrice, @IPrice, @ICat, 0, @Istatus, @IDay, @ICount, @IHour, 'R2Genius')
+
 // INSERT INTO TBLCategoryAssign (CategoryID, GoldItemID, Status, OrderNO, RegistDate, RegistAdmin)
 // VALUES (@ICat, @GIid, 1, @GIOrder, @Date, 'R2Genius')
+
 // INSERT INTO TBLGoldItemSupportSvr(GoldItemID, mSvrNo)
 // VALUES (@GIid, @SvrNo)

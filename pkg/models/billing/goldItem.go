@@ -10,7 +10,7 @@ type GoldItem struct {
 	ItemDesc          string    `json:"ItemDesc" gorm:"column:ItemDesc;size:500"`
 	OriginalGoldPrice int       `json:"OriginalGoldPrice" gorm:"column:OriginalGoldPrice;not null"`
 	GoldPrice         int       `json:"GoldPrice" gorm:"column:GoldPrice;not null"`
-	ItemCategory      string    `json:"ItemCategory" gorm:"column:ItemCategory;size:1;not null"`
+	ItemCategory      int16     `json:"ItemCategory" gorm:"column:ItemCategory;size:1;not null"`
 	IsPackage         string    `json:"IsPackage" gorm:"column:IsPackage;size:1;not null"`
 	Status            string    `json:"Status" gorm:"column:Status;size:1;not null"`
 	AvailablePeriod   int       `json:"AvailablePeriod" gorm:"column:AvailablePeriod;not null"`

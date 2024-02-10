@@ -3,16 +3,17 @@ package controllers
 import (
 	"errors"
 	"fmt"
+
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
 	"github.com/Tibirlayn/GoAdmin/pkg/models/game"
 	"github.com/gofiber/fiber/v2"
 )
 
 type PcInfo struct {
-	Pc []game.Pc
-	PcState []game.PcState
+	Pc          []game.Pc
+	PcState     []game.PcState
 	PcInventory []game.PcInventory
-	PcStore []game.PcStore
+	PcStore     []game.PcStore
 }
 
 func GetPc(c *fiber.Ctx) error {
@@ -22,8 +23,8 @@ func GetPc(c *fiber.Ctx) error {
 		var pc []game.Pc
 		if result := DB.Find(&pc); result.Error != nil {
 			fmt.Println(err)
-		} 
-			return c.JSON(pc)
+		}
+		return c.JSON(pc)
 	}
 }
 
@@ -35,7 +36,7 @@ func GetUserPc(c *fiber.Ctx) error {
 	} else {
 		if result := DB.Where("mOwner = ?", idUser).Find(&pc); result.Error != nil {
 			// Обработать ошибку, если результат неудачен
-			fmt.Println("Обработать ошибку, если результат неудачен getUserPc") 
+			fmt.Println("Обработать ошибку, если результат неудачен getUserPc")
 		}
 		return c.JSON(pc)
 	}
@@ -43,30 +44,59 @@ func GetUserPc(c *fiber.Ctx) error {
 
 func GetPcInfo(c *fiber.Ctx) error {
 	// имя персонажа
-	var name = c.Query("mNm"); 
+	var name = c.Query("mNm")
 	if name == "" {
 		return errors.New("Введите значение персонажа")
-	} 
+	}
 	var pc PcInfo
 	if DB, err := config.GameConfiguration(); err != nil {
 		return err
 	} else {
 		if resultPc := DB.Where("mNm = ?", name).Find(&pc.Pc); resultPc.Error != nil {
-			fmt.Println("Обработать ошибку, если результат неудачен GetPcInfo > if > resultPc") 
-		} 
+			fmt.Println("Обработать ошибку, если результат неудачен GetPcInfo > if > resultPc")
+		}
 
 		idPc := pc.Pc[0].MNo
 		idUser := pc.Pc[0].MOwner
 
 		if resultPcState := DB.Where("mNo = ?", idPc).Find(&pc.PcState); resultPcState.Error != nil {
-			fmt.Println("Обработать ошибку, если результат неудачен GetPcInfo > if > resultPcState") 
-		} 
+			fmt.Println("Обработать ошибку, если результат неудачен GetPcInfo > if > resultPcState")
+		}
 		if resultPcInventory := DB.Where("mPcNo = ?", idPc).Find(&pc.PcInventory); resultPcInventory.Error != nil {
-			fmt.Println("Обработать ошибку, если результат неудачен GetPcInfo > if > resultPcInventory") 
+			fmt.Println("Обработать ошибку, если результат неудачен GetPcInfo > if > resultPcInventory")
 		}
 		if resultPcStore := DB.Where("mUserNo = ?", idUser).Find(&pc.PcStore); resultPcStore.Error != nil {
-			fmt.Println("Обработать ошибку, если результат неудачен GetPcInfo > if > resultPcStore") 
+			fmt.Println("Обработать ошибку, если результат неудачен GetPcInfo > if > resultPcStore")
 		}
 	}
 	return c.JSON(pc)
+}
+
+// Запрос на просмотр ТОП 100 игроков по уровню:
+func GetTopPcByLevel(c *fiber.Ctx) error {
+
+	GameDB, err := config.GameConfiguration()
+	if err != nil {
+		return err
+	}
+
+	var result []struct {
+		ID      int    `gorm:"column:mNo"`      // id персонажа
+		Class   int8   `gorm:"column:mClass"`   // класс персонажа
+		Name    string `gorm:"column:mNm"`      // имя персонажа
+		Level   int16  `gorm:"column:mLevel"`   // уровень персонажа
+		Chaotic int    `gorm:"column:mChaotic"` // рейтинг персонажа
+		PkCnt   int    `gorm:"column:mPkCnt"`   // кол-во убийств
+	}
+
+	if err := GameDB.Table("TblPc AS a").
+		Select("TOP 100 a.mNo AS ID, a.mClass AS Class, RTRIM(a.mNm) AS Name, b.mLevel AS Level, b.mChaotic AS Chaotic, b.mPkCnt AS PkCnt").
+		Joins("JOIN TblPcState AS b ON a.mNo = b.mNo").
+		Where("a.mNo > ? AND LEFT(a.mNm, 1) <> ?", 0, ",").
+		Order("b.mLevel DESC").
+		Scan(&result).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(result)
 }

@@ -242,3 +242,67 @@ func GetMonsterResource(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 
 // SQL Запрос. Посмотреть дроп из золотого/изумрудного сундука + шансы -- (в планах)
 
+// SQL Запросы. Просмотр ТОП по БК/БГ и уровню игроков
+func GetTopBattle(c *fiber.Ctx, pageNumber int, limitCnt int) error {
+
+	ParmDB, err := config.ParmConfiguration()
+	if err != nil {
+		return err
+	}
+
+	limit := limitCnt
+	offset := (pageNumber + 1) * limit
+
+	var result []struct {
+		MRanking    int16  `gorm:"column:mRanking"`
+		MGuildNm    string `gorm:"column:mGuildNm"`
+		MVictoryCnt int    `gorm:"column:mVictoryCnt"`
+		MPcNm       string `gorm:"column:mPcNm"`
+	}
+
+	if err := ParmDB.Table("TblUnitedGuildWarHerosBattleRanking as a").
+		Select("mRanking, mGuildNm, mVictoryCnt, mVictoryCnt, mPcNm").
+		Order("mRanking ASC").
+		Limit(limit).
+		Offset(offset).
+		Scan(&result).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(result)
+}
+
+// Запрос на просмотр рейтинга по БГ
+func GetRatingGuild(c *fiber.Ctx, pageNumber int, limitCtx int) error {
+
+/* 	ParmDB, err := config.ParmConfiguration()
+
+	var result []struct {
+		mKillCnt 
+		mGuildNm
+		mVictoryCnt
+		mGuildPoint
+		mSum
+	}
+
+	
+
+SELECT
+mKillCnt,
+mGuildNm,
+mVictoryCnt,
+mGuildPoint,
+mSum
+FROM
+[FNLParm].[dbo].[temp_ranking_guild]
+ORDER BY
+mVictoryCnt DESC 
+
+	return c.JSON(result) */
+	
+	return nil
+}
+
+
+
+

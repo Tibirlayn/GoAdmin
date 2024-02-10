@@ -25,7 +25,7 @@ func Setup(app *fiber.App) {
 	app.Get("/api/pc", controllers.GetPc) // получить персонажа
 	app.Get("/api/user-pc/:idUser", controllers.GetUserPc)
 	app.Get("/api/pc-info", controllers.GetPcInfo)
-
+	app.Get("/api/top-pc", controllers.GetTopPcByLevel) // Запрос на просмотр ТОП 100 игроков по уровню:
 	
 	// ParmController
 	app.Get("/api/drop-boss", controllers.GetInfoBossDrop) // Просмотр всех предметов у монстра
@@ -82,7 +82,6 @@ func Setup(app *fiber.App) {
 
 		return controllers.GetItemResource(c, pageNumber, limitCnt)
 	})
-
 	app.Get("/api/monster-resource", func(c *fiber.Ctx) error {
 		pageNumber, err := strconv.Atoi(c.Query("page"))
 		if err != nil {
@@ -96,7 +95,19 @@ func Setup(app *fiber.App) {
 
 		return controllers.GetMonsterResource(c, pageNumber, limitCnt)
 	})
+	app.Get("/api/top-battle", func(c *fiber.Ctx) error {
+		pageNumber, err := strconv.Atoi(c.Query("page"))
+		if err != nil {
+			return err 
+		}
 
+		limitCnt, err := strconv.Atoi(c.Query("limitCnt"))
+		if err != nil {
+			return err
+		}
+
+		return controllers.GetTopBattle(c, pageNumber, limitCnt)
+	})
 
 	// BillingController
 	app.Post("/api/add-gift", controllers.PostGift) // добавить 1 подарок на аккаунт

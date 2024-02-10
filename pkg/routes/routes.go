@@ -24,7 +24,15 @@ func Setup(app *fiber.App) {
 	// GameController
 	app.Get("/api/pc", controllers.GetPc) // получить персонажа
 	app.Get("/api/user-pc/:idUser", controllers.GetUserPc)
-	app.Get("/api/pc-info", controllers.GetPcInfo)
+	app.Get("/api/pc-info", func(c *fiber.Ctx) error { // получить информацию о персонаже 
+		namePc := c.Query("mNm")
+		if namePc == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"message": "Name is empaty",
+			})
+		}
+		return controllers.GetPcInfo(c, namePc)
+	})
 	app.Get("/api/top-pc", controllers.GetTopPcByLevel) // Запрос на просмотр ТОП 100 игроков по уровню:
 	app.Get("/api/top-pc-gold", controllers.GetTopPcbyGold) // Запрос на просмотр ТОП 100 игроков по количеству золота:
 	

@@ -26,6 +26,7 @@ func Setup(app *fiber.App) {
 	app.Get("/api/user-pc/:idUser", controllers.GetUserPc)
 	app.Get("/api/pc-info", controllers.GetPcInfo)
 	app.Get("/api/top-pc", controllers.GetTopPcByLevel) // Запрос на просмотр ТОП 100 игроков по уровню:
+	app.Get("/api/top-pc-gold", controllers.GetTopPcbyGold) // Запрос на просмотр ТОП 100 игроков по количеству золота:
 	
 	// ParmController
 	app.Get("/api/drop-boss", controllers.GetInfoBossDrop) // Просмотр всех предметов у монстра

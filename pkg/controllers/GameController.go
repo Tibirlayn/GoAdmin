@@ -100,3 +100,32 @@ func GetTopPcByLevel(c *fiber.Ctx) error {
 
 	return c.JSON(result)
 }
+
+// Запрос на просмотр ТОП 100 игроков по количеству золота:
+func GetTopPcbyGold(c *fiber.Ctx) error {
+
+	GameDB, err := config.GameConfiguration()
+	if err != nil {
+		return err
+	}
+
+	var result []struct {
+		MOwner    int    `gorm:"column:mOwner"` // аккаунт персонажа
+		MSerialNo int64  `gorm:"column:mSerialNo"`
+		Name      string `gorm:"column:mNm"`     // имя персонажа
+		MPcNo     int    `gorm:"column:mPcNo"`   // id персонажа
+		MItemNo   int    `gorm:"column:mItemNo"` // id предмета
+		MCnt      int    `gorm:"column:mCnt"`    // кол-во
+	}
+
+	if err := GameDB.Table("TblPc AS a").
+		Select("TOP 100 a.mOwner AS MOwner, b.mSerialNo AS MSerialNo, RTRIM(a.mNm) AS Name, b.mPcNo AS MPcNo, b.mItemNo AS MItemNo, b.mCnt AS MCnt").
+		Joins("INNER JOIN TblPcInventory AS b ON b.mPcNo = a.mNo").
+		Where("b.mItemNo = ? AND LEFT (a.mNm, 1) <> ?", 409, ",").
+		Order("b.mCnt DESC").
+		Scan(&result).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(result)
+}

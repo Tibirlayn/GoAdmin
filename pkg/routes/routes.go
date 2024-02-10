@@ -118,9 +118,29 @@ func Setup(app *fiber.App) {
 		return controllers.GetTopBattle(c, pageNumber, limitCnt)
 	})
 
+	// Просмотр дропа из сундуков
+	app.Get("/api/drop-chests", func(c *fiber.Ctx) error {
+		pageNumber, err := strconv.Atoi(c.Query("page"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid page number",
+			})
+		}
+
+		limitCnt, err := strconv.Atoi(c.Query("limitCnt"))
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error": "Invalid limitCnt",
+			})
+		}
+
+		return controllers.GetDropFromChests(c, pageNumber, limitCnt)
+	})
+
 	// BillingController
 	app.Post("/api/add-gift", controllers.PostGift) // добавить 1 подарок на аккаунт
 	app.Post("/api/add-gift-all", controllers.PostGiftAll) // добавить всем персонажам подарок
 	app.Post("/api/add-gift-pc", controllers.PostGiftPcName) // добавить подаро по имени персонажа
 	app.Delete("/api/delete-all-gift", controllers.DeleteAllGift) // удалить все подарки 
 }
+

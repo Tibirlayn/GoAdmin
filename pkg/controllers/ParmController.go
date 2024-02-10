@@ -251,7 +251,7 @@ func GetTopBattle(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 	}
 
 	limit := limitCnt
-	offset := (pageNumber + 1) * limit
+	offset := (pageNumber - 1) * limit
 
 	var result []struct {
 		MRanking    int16  `gorm:"column:mRanking"`
@@ -275,34 +275,76 @@ func GetTopBattle(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 // Запрос на просмотр рейтинга по БГ
 func GetRatingGuild(c *fiber.Ctx, pageNumber int, limitCtx int) error {
 
-/* 	ParmDB, err := config.ParmConfiguration()
+	/* 	ParmDB, err := config.ParmConfiguration()
 
-	var result []struct {
-		mKillCnt 
-		mGuildNm
-		mVictoryCnt
-		mGuildPoint
-		mSum
-	}
+		var result []struct {
+			mKillCnt
+			mGuildNm
+			mVictoryCnt
+			mGuildPoint
+			mSum
+		}
 
-	
 
-SELECT
-mKillCnt,
-mGuildNm,
-mVictoryCnt,
-mGuildPoint,
-mSum
-FROM
-[FNLParm].[dbo].[temp_ranking_guild]
-ORDER BY
-mVictoryCnt DESC 
 
-	return c.JSON(result) */
-	
+	SELECT
+	mKillCnt,
+	mGuildNm,
+	mVictoryCnt,
+	mGuildPoint,
+	mSum
+	FROM
+	[FNLParm].[dbo].[temp_ranking_guild]
+	ORDER BY
+	mVictoryCnt DESC
+
+		return c.JSON(result) */
+
 	return nil
 }
 
+// Просмотр дропа из сундуков
+func GetDropFromChests(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 
+	limit := limitCnt
+	offset := (pageNumber - 1) * limit
 
+	ParmDB, err := config.ParmConfiguration()
+	if err != nil {
+		return err
+	}
 
+	var result []struct {
+		MDID        int64   `gorm:"column:MDID"`
+		MDRD        int64   `gorm:"column:MDRD"`
+		IdBox       int     `gorm:"column:IID"`         // IID Коробки
+		NameBox     string  `gorm:"column:IName"`       // Название Коробки
+		IdItem      int     `gorm:"column:IID"`         // ID Получаемого предмета
+		NameItem    string  `gorm:"column:IName"`       // Название Получаемого предмета
+		MDesc       string  `gorm:"column:mDesc"`       // Название группы
+		MPerOrRate  float64 `gorm:"column:mPerOrRate"`  // Дроп шанс
+		MItemStatus int8    `gorm:"column:mItemStatus"` // Статус предмета
+		MCnt        int     `gorm:"column:mCnt"`        // Количество
+		MBinding    string  `gorm:"column:mBinding"`    // Предмет Под замком?
+		MEffTime    int     `gorm:"column:mEffTime"`    // Время эффекта
+		MValTime    int16   `gorm:"column:mValTime"`    // Время предмета
+		MMaxResCnt  int     `gorm:"column:mMaxResCnt"`  // MaxResCnt DrawIndex
+		MSuccess    float64 `gorm:"column:mSuccess"`    // Шанс DrawIndex
+	}
+
+	if err := ParmDB.Table("TblMaterialDrawResult AS a").
+		Select("a2.MDID, a.MDRD, a3.IID AS IdBox, b2.IName AS NameBox, a.IID AS IdItem, b.IName AS NameItem, a2.mDesc AS MDesc, a.mPerOrRate AS MPerOrRate, " +
+			"a.mItemStatus AS MItemStatus, a.mCnt AS MCnt, CASE a.mBinding WHEN 0 THEN 'YES' WHEN 1 THEN 'NO' END AS MBinding, a.mEffTime AS MEffTime, " +
+			"a.mValTime AS MValTime, a2.mMaxResCnt AS MMaxResCnt, a2.mSuccess AS MSuccess").
+		Joins("LEFT OUTER JOIN TblMaterialDrawIndex AS a2 ON a2.MDRD = a.MDRD").
+		Joins("LEFT OUTER JOIN TblMaterialDrawMaterial AS a3 ON a3.MDID = a2.MDID").
+		Joins("LEFT OUTER JOIN DT_Item AS b ON b.IID = a.IID").
+		Joins("LEFT OUTER JOIN DT_Item AS b2 ON b2.IID = a3.IID").
+		Limit(limit).
+		Offset(offset).
+		Scan(&result).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(result)
+}

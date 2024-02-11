@@ -137,6 +137,9 @@ func Setup(app *fiber.App) {
 		return controllers.GetDropFromChests(c, pageNumber, limitCnt)
 	})
 
+	// Добавить Крафт
+	app.Post("/api/add-craft", controllers.PostAddCraft)
+
 	// BillingController
 	app.Post("/api/add-gift", controllers.PostGift) // добавить 1 подарок на аккаунт
 	app.Post("/api/add-gift-all", controllers.PostGiftAll) // добавить всем персонажам подарок

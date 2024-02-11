@@ -19,17 +19,17 @@ func Register(c *fiber.Ctx) error {
 		return err
 	}
 
-	connection_DB, err := config.AccountConfiguration()
-	if err != nil {
-		return err
-	}
-
 	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
 
 	user := account.User{
 		Name:     data["name"],
 		Email:    data["email"],
 		Password: password,
+	}
+
+	connection_DB, err := config.AccountConfiguration()
+	if err != nil {
+		return err
 	}
 
 	if err := connection_DB.Create(&user).Error; err != nil {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
+	"github.com/Tibirlayn/GoAdmin/pkg/models/parm"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -348,3 +349,81 @@ func GetDropFromChests(c *fiber.Ctx, pageNumber int, limitCnt int) error {
 
 	return c.JSON(result)
 }
+
+// Добавить Крафт
+func PostAddCraft(c *fiber.Ctx) error {
+	var data map[string]string
+
+	if err := c.BodyParser(&data); err != nil {
+		return err
+	}
+
+	refine := parm.Refine{
+		RID:          1,
+		RItemID0:     1,
+		RItemID1:     1,
+		RItemID2:     1,
+		RItemID3:     1,
+		RItemID4:     1,
+		RItemID5:     1,
+		RItemID6:     1,
+		RItemID7:     1,
+		RItemID8:     1,
+		RItemID9:     1,
+		RSuccess:     1,
+		RIsCreateCnt: 1,
+	}
+
+	refineMaterial := parm.RefineMaterial{
+		RID:      1,
+		RItemID:  1,
+		RNum:     1,
+		ROrderNo: 1,
+	}
+
+	refineCreateInfo := parm.RefineCreateInfo{
+		MIDX:      1,
+		MRID:      1,
+		MGroup1:   1,
+		MGroup2:   1,
+		MSort:     1,
+		MItem0:    1,
+		MItem1:    1,
+		MItem2:    1,
+		MItem3:    1,
+		MCost:     1,
+		MNationOp: 1,
+	}
+
+	fmt.Println(refine, refineMaterial, refineCreateInfo)
+
+	return nil
+}
+
+/*
+SET @ItemID = '123123' -- Номер создаваемого предмета
+SET @Chance = '100' -- Шанс успешного создания
+SET @Item1 = '1200' -- Первый предмет, участвующий в создании
+SET @Item2 = '123122' -- Второй предмет, участвующий в создании
+SET @Item3 = '1522' -- Третий предмет, участвующий в создании
+SET @Item4 = '922' -- Четвертый предмет, участвующий в создании
+SET @Cost = '0' -- Стоимость крафта в серебре
+SET @Group1 = '3' -- Первая группа сортировки
+SET @Group2 = '3' -- Вторая группа сортировки
+SET @RID = (SELECT MAX(RID)+1 FROM [DT_Refine])
+SET @NewIDX = (SELECT MAX(mIDX)+1 FROM [DT_RefineCreateInfo])
+SET @Sort = (SELECT MAX(mSort)+1 FROM [DT_RefineCreateInfo] WHERE [mGroup1] = @Group1 AND [mGroup2] = @Group2)
+
+INSERT INTO [dbo].[DT_Refine] ([RID], [RItemID0], [RItemID1], [RItemID2], [RItemID3], [RItemID4], [RItemID5], [RItemID6], [RItemID7], [RItemID8], [RItemID9], [RSuccess], [RIsCreateCnt])
+VALUES
+(@RID, @ItemID, 0, 0, 0, 0, 0, 0, 0, 0, 0, @Chance, 1);
+
+INSERT INTO [dbo].[DT_RefineCreateInfo] ([mIDX], [mRID], [mGroup1], [mGroup2], [mSort], [mItem0], [mItem1], [mItem2], [mItem3], [mCost], [mNationOp])
+VALUES
+(@NewIDX, @RID, @Group1, @Group2, @Sort, 0, 0, 0, 0, @Cost, 1152921504606846975);
+
+INSERT INTO [dbo].[DT_RefineMaterial] ([RID], [RItemID], [RNum], [ROrderNo]) VALUES (@RID, @Item1, 1, 1);
+INSERT INTO [dbo].[DT_RefineMaterial] ([RID], [RItemID], [RNum], [ROrderNo]) VALUES (@RID, @Item2, 1, 2);
+INSERT INTO [dbo].[DT_RefineMaterial] ([RID], [RItemID], [RNum], [ROrderNo]) VALUES (@RID, @Item3, 1, 3);
+INSERT INTO [dbo].[DT_RefineMaterial] ([RID], [RItemID], [RNum], [ROrderNo]) VALUES (@RID, @Item4, 1, 4);
+*/

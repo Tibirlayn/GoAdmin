@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 
+	// "strconv"
+
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
-	"github.com/Tibirlayn/GoAdmin/pkg/models/parm"
+	// "github.com/Tibirlayn/GoAdmin/pkg/models/parm"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -358,44 +360,35 @@ func PostAddCraft(c *fiber.Ctx) error {
 		return err
 	}
 
-	refine := parm.Refine{
-		RID:          1,
-		RItemID0:     1,
-		RItemID1:     1,
-		RItemID2:     1,
-		RItemID3:     1,
-		RItemID4:     1,
-		RItemID5:     1,
-		RItemID6:     1,
-		RItemID7:     1,
-		RItemID8:     1,
-		RItemID9:     1,
-		RSuccess:     1,
-		RIsCreateCnt: 1,
+	ParmDB, err := config.ParmConfiguration()
+	if err != nil {
+		return err
 	}
 
-	refineMaterial := parm.RefineMaterial{
-		RID:      1,
-		RItemID:  1,
-		RNum:     1,
-		ROrderNo: 1,
+	//var refine parm.Refine
+
+	/* INSERT INTO [dbo].[DT_Refine] ([RID], [RItemID0], [RItemID1], [RItemID2], [RItemID3], [RItemID4], [RItemID5], [RItemID6], [RItemID7], [RItemID8], [RItemID9], [RSuccess], [RIsCreateCnt])
+	VALUES
+	(@RID, @ItemID, 0, 0, 0, 0, 0, 0, 0, 0, 0, @Chance, 1); */
+
+	var RID int
+
+	if err := ParmDB.Table("DT_Refine").Select("MAX(RID) + 1").Scan(&RID).Error; err != nil {
+		return err
 	}
 
-	refineCreateInfo := parm.RefineCreateInfo{
-		MIDX:      1,
-		MRID:      1,
-		MGroup1:   1,
-		MGroup2:   1,
-		MSort:     1,
-		MItem0:    1,
-		MItem1:    1,
-		MItem2:    1,
-		MItem3:    1,
-		MCost:     1,
-		MNationOp: 1,
-	}
+	fmt.Println(RID)
 
-	fmt.Println(refine, refineMaterial, refineCreateInfo)
+	/* refine.RID, _ = strconv.Atoi(data["RID"])
+	refine.RItemID0, _ = strconv.Atoi(data["RItemID0"])
+	refine.RSuccess, _ = strconv.Atoi(data["Success"])
+	refine.RIsCreateCnt, _ = strconv.Atoi(data[""])
+
+	var refineMaterial parm.RefineMaterial
+
+	var refineCreateInfo parm.RefineCreateInfo
+
+	fmt.Println(refine, refineMaterial, refineCreateInfo) */
 
 	return nil
 }

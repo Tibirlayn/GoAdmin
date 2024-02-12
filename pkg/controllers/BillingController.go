@@ -357,17 +357,3 @@ func PostAddShopItem(c *fiber.Ctx) error {
 		"status": "добавлен новый шоп предмет",
 	})
 }
-
-// DECLARE @Date DATETIME SET @Date = GETDATE() /* Сегодняшняя дата */
-// DECLARE @GIid INT = (SELECT MAX(GoldItemID) FROM TBLGoldItem) + 1
-// DECLARE @GIOrder INT = (SELECT MAX(OrderNO) FROM TBLCategoryAssign) + 1
-// IF @GIid IS NULL SET @GIid = 1
-// IF @GIOrder IS NULL SET @GIOrder = 1
-// INSERT INTO TBLGoldItem (GoldItemID, IID, ItemName, ItemDesc, OriginalGoldPrice, GoldPrice, ItemCategory, IsPackage, Status, AvailablePeriod, Count, PracticalPeriod, RegistAdmin)
-// VALUES (@GIid, @ItemID, @IName, @IDesc, @IPrice, @IPrice, @ICat, 0, @Istatus, @IDay, @ICount, @IHour, 'R2Genius')
-
-// INSERT INTO TBLCategoryAssign (CategoryID, GoldItemID, Status, OrderNO, RegistDate, RegistAdmin)
-// VALUES (@ICat, @GIid, 1, @GIOrder, @Date, 'R2Genius')
-
-// INSERT INTO TBLGoldItemSupportSvr(GoldItemID, mSvrNo)
-// VALUES (@GIid, @SvrNo)

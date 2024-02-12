@@ -397,11 +397,16 @@ func PostAddCraft(c *fiber.Ctx) error {
 	group1, _ := strconv.ParseInt(data["Group1"], 10, 8)
 	group2, _ := strconv.ParseInt(data["Group2"], 10, 8)
 	cost, _ := strconv.Atoi(data["Cost"])
-	if err := ParmDB.Table("DT_RefineCreateInfo").Select("MAX(mIDX) + 1").Scan(&idx).Error; err != nil {
+	if err := ParmDB.Table("DT_RefineCreateInfo").
+		Select("MAX(mIDX) + 1").
+		Scan(&idx).Error; err != nil {
 		return err
 	}
 
-	if err := ParmDB.Table("DT_RefineCreateInfo").Select("MAX(mSort) + 1").Where("mGroup1 = ? AND mGroup2 = ?").Scan(&sort).Error; err != nil {
+	if err := ParmDB.Table("DT_RefineCreateInfo").
+		Select("MAX(mSort) + 1").
+		Where("mGroup1 = ? AND mGroup2 = ?").
+		Scan(&sort).Error; err != nil {
 		return err
 	}
 

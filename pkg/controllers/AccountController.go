@@ -2,15 +2,16 @@ package controllers
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
 	"github.com/Tibirlayn/GoAdmin/pkg/models/account"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
 )
 
 type SearchResult struct {
 	Member []account.Member
-	User []account.TblUser
+	User   []account.TblUser
 }
 
 func GetUser(c *fiber.Ctx) error {
@@ -90,7 +91,8 @@ func GetUserAdmin(c *fiber.Ctx) error {
 		return c.JSON(userAdmin)
 	}
 }
-// поиск по id / namePc / nameLogin / email 
+
+// поиск по id / namePc / nameLogin / email
 func GetSearchUser(c *fiber.Ctx) error {
 	value := c.Query("value")
 	var result SearchResult
@@ -113,15 +115,3 @@ func GetSearchUser(c *fiber.Ctx) error {
 		return c.JSON(result)
 	}
 }
-
-/*
-func GetUserPc(c fiber.Ctx) error {
-	if DB, err := config.AccountConfiguration(); err != nil {
-		return err
-	} else {
-		value := c.Params("value") 
-		var pc := 
-	}
-	return nil
-}
-*/

@@ -1,14 +1,12 @@
 package controllers
 
 import (
-	//	"encoding/json"
 	"errors"
 	"fmt"
-
-	// "strconv"
+	"strconv"
 
 	"github.com/Tibirlayn/GoAdmin/pkg/config"
-	// "github.com/Tibirlayn/GoAdmin/pkg/models/parm"
+	"github.com/Tibirlayn/GoAdmin/pkg/models/parm"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -360,63 +358,99 @@ func PostAddCraft(c *fiber.Ctx) error {
 		return err
 	}
 
+	var id int
+	success, _ := strconv.ParseFloat(data["Success"], 64)
+	ItemID, _ := strconv.Atoi(data["ItemID"])
+
 	ParmDB, err := config.ParmConfiguration()
 	if err != nil {
 		return err
 	}
 
-	//var refine parm.Refine
-
-	/* INSERT INTO [dbo].[DT_Refine] ([RID], [RItemID0], [RItemID1], [RItemID2], [RItemID3], [RItemID4], [RItemID5], [RItemID6], [RItemID7], [RItemID8], [RItemID9], [RSuccess], [RIsCreateCnt])
-	VALUES
-	(@RID, @ItemID, 0, 0, 0, 0, 0, 0, 0, 0, 0, @Chance, 1); */
-
-	var RID int
-
-	if err := ParmDB.Table("DT_Refine").Select("MAX(RID) + 1").Scan(&RID).Error; err != nil {
+	if err := ParmDB.Table("DT_Refine").Select("MAX(RID) + 1").Scan(&id).Error; err != nil {
 		return err
 	}
 
-	fmt.Println(RID)
+	refine := parm.Refine{
+		RID:          id,
+		RItemID0:     ItemID, // Номер создаваемого предмета
+		RItemID1:     0,
+		RItemID2:     0,
+		RItemID3:     0,
+		RItemID4:     0,
+		RItemID5:     0,
+		RItemID6:     0,
+		RItemID7:     0,
+		RItemID8:     0,
+		RItemID9:     0,
+		RSuccess:     success, // Шанс успешного создания
+		RIsCreateCnt: 1,
+	}
 
-	/* refine.RID, _ = strconv.Atoi(data["RID"])
-	refine.RItemID0, _ = strconv.Atoi(data["RItemID0"])
-	refine.RSuccess, _ = strconv.Atoi(data["Success"])
-	refine.RIsCreateCnt, _ = strconv.Atoi(data[""])
+	tx := ParmDB.Begin()
+	if err := ParmDB.Create(&refine).Error; err != nil {
+		tx.Rollback() // Откатить транзакцию при возникновении ошибки
+		return err
+	}
 
-	var refineMaterial parm.RefineMaterial
+	var idx, sort int
+	group1, _ := strconv.ParseInt(data["Group1"], 10, 8)
+	group2, _ := strconv.ParseInt(data["Group2"], 10, 8)
+	cost, _ := strconv.Atoi(data["Cost"])
+	if err := ParmDB.Table("DT_RefineCreateInfo").Select("MAX(mIDX) + 1").Scan(&idx).Error; err != nil {
+		return err
+	}
 
-	var refineCreateInfo parm.RefineCreateInfo
+	if err := ParmDB.Table("DT_RefineCreateInfo").Select("MAX(mSort) + 1").Where("mGroup1 = ? AND mGroup2 = ?").Scan(&sort).Error; err != nil {
+		return err
+	}
 
-	fmt.Println(refine, refineMaterial, refineCreateInfo) */
+	refineCreateInfo := parm.RefineCreateInfo{
+		MIDX:      idx,
+		MRID:      id,
+		MGroup1:   int8(group1),
+		MGroup2:   int8(group2),
+		MSort:     sort,
+		MItem0:    0,
+		MItem1:    0,
+		MItem2:    0,
+		MItem3:    0,
+		MCost:     cost,
+		MNationOp: 1152921504606846975,
+	}
 
-	return nil
+	if err := ParmDB.Create(&refineCreateInfo).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	var items []int
+	item1, _ := strconv.Atoi(data["Item1"])
+	item2, _ := strconv.Atoi(data["Item2"])
+	item3, _ := strconv.Atoi(data["Item3"])
+	item4, _ := strconv.Atoi(data["Item4"])
+
+	items = append(items, item1, item2, item3, item4)
+
+	for key, item := range items {
+		RefineMaterial := parm.RefineMaterial{
+			RID:      id,
+			RItemID:  item,
+			RNum:     1,
+			ROrderNo: int8(key) + 1,
+		}
+
+		if err := ParmDB.Create(RefineMaterial).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return c.JSON(fiber.Map{
+		"message": "Success",
+	})
 }
-
-/*
-SET @ItemID = '123123' -- Номер создаваемого предмета
-SET @Chance = '100' -- Шанс успешного создания
-SET @Item1 = '1200' -- Первый предмет, участвующий в создании
-SET @Item2 = '123122' -- Второй предмет, участвующий в создании
-SET @Item3 = '1522' -- Третий предмет, участвующий в создании
-SET @Item4 = '922' -- Четвертый предмет, участвующий в создании
-SET @Cost = '0' -- Стоимость крафта в серебре
-SET @Group1 = '3' -- Первая группа сортировки
-SET @Group2 = '3' -- Вторая группа сортировки
-SET @RID = (SELECT MAX(RID)+1 FROM [DT_Refine])
-SET @NewIDX = (SELECT MAX(mIDX)+1 FROM [DT_RefineCreateInfo])
-SET @Sort = (SELECT MAX(mSort)+1 FROM [DT_RefineCreateInfo] WHERE [mGroup1] = @Group1 AND [mGroup2] = @Group2)
-
-INSERT INTO [dbo].[DT_Refine] ([RID], [RItemID0], [RItemID1], [RItemID2], [RItemID3], [RItemID4], [RItemID5], [RItemID6], [RItemID7], [RItemID8], [RItemID9], [RSuccess], [RIsCreateCnt])
-VALUES
-(@RID, @ItemID, 0, 0, 0, 0, 0, 0, 0, 0, 0, @Chance, 1);
-
-INSERT INTO [dbo].[DT_RefineCreateInfo] ([mIDX], [mRID], [mGroup1], [mGroup2], [mSort], [mItem0], [mItem1], [mItem2], [mItem3], [mCost], [mNationOp])
-VALUES
-(@NewIDX, @RID, @Group1, @Group2, @Sort, 0, 0, 0, 0, @Cost, 1152921504606846975);
-
-INSERT INTO [dbo].[DT_RefineMaterial] ([RID], [RItemID], [RNum], [ROrderNo]) VALUES (@RID, @Item1, 1, 1);
-INSERT INTO [dbo].[DT_RefineMaterial] ([RID], [RItemID], [RNum], [ROrderNo]) VALUES (@RID, @Item2, 1, 2);
-INSERT INTO [dbo].[DT_RefineMaterial] ([RID], [RItemID], [RNum], [ROrderNo]) VALUES (@RID, @Item3, 1, 3);
-INSERT INTO [dbo].[DT_RefineMaterial] ([RID], [RItemID], [RNum], [ROrderNo]) VALUES (@RID, @Item4, 1, 4);
-*/

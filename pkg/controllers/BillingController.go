@@ -12,7 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// Выдать падарки всем персонажам
+// Удалить падарки всем персонажам
 func DeleteAllGift(c *fiber.Ctx) error {
 	BillingDB, err := config.BillingConfiguration()
 	if err != nil {
@@ -82,8 +82,8 @@ func PostGift(c *fiber.Ctx) error {
 			MItemStatus:      uint8(status),
 		}
 		if err := BillingDB.
-		Omit("mRegDate", "mReceiptDate", "mReceiptPcNo", "mRecepitPcNm").
-		Create(&giftPc).Error; err != nil {
+			Omit("mRegDate", "mReceiptDate", "mReceiptPcNo", "mRecepitPcNm").
+			Create(&giftPc).Error; err != nil {
 			tx.Rollback() // Откатить транзакцию при возникновении ошибки
 			return err
 		}
@@ -277,15 +277,15 @@ func PostAddShopItem(c *fiber.Ctx) error {
 	var packageGold = "0"
 	var admin = "GoAdmin"
 	if err := BillingDB.Model(&billing.GoldItem{}).
-	Select("MAX(GoldItemID)").
-	Find(&billing.GoldItem{}).
-	Scan(&maxGoldenID).Error; err != nil {
+		Select("MAX(GoldItemID)").
+		Find(&billing.GoldItem{}).
+		Scan(&maxGoldenID).Error; err != nil {
 		return err
 	}
 	if err := BillingDB.Model(&billing.CategoryAssign{}).
-	Select("MAX(OrderNO)").
-	Find(&billing.CategoryAssign{}).
-	Scan(&maxOrder).Error; err != nil {
+		Select("MAX(OrderNO)").
+		Find(&billing.CategoryAssign{}).
+		Scan(&maxOrder).Error; err != nil {
 		return err
 	}
 
@@ -317,8 +317,8 @@ func PostAddShopItem(c *fiber.Ctx) error {
 
 	tx := BillingDB.Begin()
 	if err := BillingDB.
-	Omit("ItemImage", "RegistDate", "RegistIP", "UpdateDate", "UpdateAdmin", "UpdateIP", "ItemNameRUS", "ItemDescRUS").
-	Create(&newTBLGoldItem).Error; err != nil {
+		Omit("ItemImage", "RegistDate", "RegistIP", "UpdateDate", "UpdateAdmin", "UpdateIP", "ItemNameRUS", "ItemDescRUS").
+		Create(&newTBLGoldItem).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -333,8 +333,8 @@ func PostAddShopItem(c *fiber.Ctx) error {
 	}
 
 	if err := BillingDB.
-	Omit("RegistIP", "UpdateDate", "UpdateAdmin", "UpdateIP").
-	Create(&newTBLCategoryAssign).Error; err != nil {
+		Omit("RegistIP", "UpdateDate", "UpdateAdmin", "UpdateIP").
+		Create(&newTBLCategoryAssign).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

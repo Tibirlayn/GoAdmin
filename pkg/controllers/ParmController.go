@@ -459,3 +459,25 @@ func PostAddCraft(c *fiber.Ctx) error {
 		"message": "Success",
 	})
 }
+
+func GetGoldChest(c *fiber.Ctx) error {
+	ParmDB, err := config.ParmConfiguration()
+	if err != nil {
+		return err
+	}
+
+	var goldenChest = 929
+	var emeraldChest = 2578
+	var resultGolden string
+	var resultEmerald string
+
+	if err := ParmDB.Table("TblDialogScript").Select("mScriptText").Where("mMId = ?", goldenChest).Scan(&resultGolden).Error; err != nil {
+		return err
+	}
+
+	if err := ParmDB.Table("TblDialogScript").Select("mScriptText").Where("mMId = ?", emeraldChest).Scan(&resultEmerald).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

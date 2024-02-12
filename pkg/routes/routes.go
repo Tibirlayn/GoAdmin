@@ -8,9 +8,9 @@ import (
 )
 
 func Setup(app *fiber.App) {
-	app.Post("/api/register", controllers.Register) // регистрация 
-	app.Post("/api/login", controllers.Login) // логин
-	app.Get("/api/user", controllers.User)	
+	app.Post("/api/register", controllers.Register) // регистрация
+	app.Post("/api/login", controllers.Login)       // логин
+	app.Get("/api/user", controllers.User)
 	app.Post("/api/logout", controllers.Logout) // выход
 
 	// AccountController
@@ -18,13 +18,13 @@ func Setup(app *fiber.App) {
 	app.Get("/api/member", controllers.GetMember)
 	app.Get("/api/user-block", controllers.GetUserBlock)
 	app.Get("/api/user-black", controllers.GetUserBlack)
-	app.Get("/api/admin", controllers.GetUserAdmin) 
-	app.Get("/api/search-user", controllers.GetSearchUser) // поиск по id / namePc / nameLogin / email 
+	app.Get("/api/admin", controllers.GetUserAdmin)
+	app.Get("/api/search-user", controllers.GetSearchUser) // поиск по id / namePc / nameLogin / email
 
 	// GameController
 	app.Get("/api/pc", controllers.GetPc) // получить персонажа
 	app.Get("/api/user-pc/:idUser", controllers.GetUserPc)
-	app.Get("/api/pc-info", func(c *fiber.Ctx) error { // получить информацию о персонаже 
+	app.Get("/api/pc-info", func(c *fiber.Ctx) error { // получить информацию о персонаже
 		namePc := c.Query("mNm")
 		if namePc == "" {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -33,13 +33,14 @@ func Setup(app *fiber.App) {
 		}
 		return controllers.GetPcInfo(c, namePc)
 	})
-	app.Get("/api/top-pc", controllers.GetTopPcByLevel) // Запрос на просмотр ТОП 100 игроков по уровню:
+	app.Get("/api/top-pc", controllers.GetTopPcByLevel)     // Запрос на просмотр ТОП 100 игроков по уровню:
 	app.Get("/api/top-pc-gold", controllers.GetTopPcbyGold) // Запрос на просмотр ТОП 100 игроков по количеству золота:
-	
+
 	// ParmController
-	app.Get("/api/drop-boss", controllers.GetInfoBossDrop) // Просмотр всех предметов у монстра
-	app.Get("/api/specific-proc-item", controllers.GetSpecificProcItem) // Просмотр координат печатей телепорта 
-	
+	app.Get("/api/drop-boss", controllers.GetInfoBossDrop)              // Просмотр всех предметов у монстра
+	app.Get("/api/specific-proc-item", controllers.GetSpecificProcItem) // Просмотр координат печатей телепорта
+	app.Get("/api/gold-chest", controllers.GetGoldChest)                // Посмотреть дроп из золотого/изумрудного сундука + шансы
+
 	// Просмотр DT_Refine
 	app.Get("/api/refine", func(c *fiber.Ctx) error {
 		pageNumber, err := strconv.Atoi(c.Query("page"))
@@ -56,7 +57,7 @@ func Setup(app *fiber.App) {
 		}
 
 		return controllers.GetRefine(c, pageNumber, limitCnt)
-	}) 
+	})
 	app.Get("/api/refine-by-name", func(c *fiber.Ctx) error {
 		pageNamber, err := strconv.Atoi(c.Query("page"))
 		if err != nil {
@@ -107,7 +108,7 @@ func Setup(app *fiber.App) {
 	app.Get("/api/top-battle", func(c *fiber.Ctx) error {
 		pageNumber, err := strconv.Atoi(c.Query("page"))
 		if err != nil {
-			return err 
+			return err
 		}
 
 		limitCnt, err := strconv.Atoi(c.Query("limitCnt"))
@@ -141,9 +142,8 @@ func Setup(app *fiber.App) {
 	app.Post("/api/add-craft", controllers.PostAddCraft)
 
 	// BillingController
-	app.Post("/api/add-gift", controllers.PostGift) // добавить 1 подарок на аккаунт
-	app.Post("/api/add-gift-all", controllers.PostGiftAll) // добавить всем персонажам подарок
-	app.Post("/api/add-gift-pc", controllers.PostGiftPcName) // добавить подаро по имени персонажа
-	app.Delete("/api/delete-all-gift", controllers.DeleteAllGift) // удалить все подарки 
+	app.Post("/api/add-gift", controllers.PostGift)               // добавить 1 подарок на аккаунт
+	app.Post("/api/add-gift-all", controllers.PostGiftAll)        // добавить всем персонажам подарок
+	app.Post("/api/add-gift-pc", controllers.PostGiftPcName)      // добавить подаро по имени персонажа
+	app.Delete("/api/delete-all-gift", controllers.DeleteAllGift) // удалить все подарки
 }
-

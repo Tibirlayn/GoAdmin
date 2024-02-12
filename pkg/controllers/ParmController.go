@@ -460,6 +460,7 @@ func PostAddCraft(c *fiber.Ctx) error {
 	})
 }
 
+// // Посмотреть дроп из золотого/изумрудного сундука + шансы
 func GetGoldChest(c *fiber.Ctx) error {
 	ParmDB, err := config.ParmConfiguration()
 	if err != nil {

@@ -490,6 +490,10 @@ func GetTree(c *fiber.Ctx) error {
 		return err
 	}
 
+	if err := ParmDB.Table("").Error; err != nil {
+		return err
+	}
+
 	/*
 		SELECT
 		a.[mSTID],

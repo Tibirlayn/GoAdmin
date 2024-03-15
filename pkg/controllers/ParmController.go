@@ -460,7 +460,7 @@ func PostAddCraft(c *fiber.Ctx) error {
 	})
 }
 
-// // Посмотреть дроп из золотого/изумрудного сундука + шансы
+// Посмотреть дроп из золотого/изумрудного сундука + шансы
 func GetGoldChest(c *fiber.Ctx) error {
 	ParmDB, err := config.ParmConfiguration()
 	if err != nil {
@@ -479,6 +479,53 @@ func GetGoldChest(c *fiber.Ctx) error {
 	if err := ParmDB.Table("TblDialogScript").Select("mScriptText").Where("mMId = ?", emeraldChest).Scan(&resultEmerald).Error; err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// Запрос на вывод древа
+func GetTree(c *fiber.Ctx) error {
+	ParmDB, err := config.ParmConfiguration()
+	if err != nil {
+		return err
+	}
+
+	/*
+		SELECT
+		a.[mSTID],
+		a.[mName] as 'имя ветки',
+		b.[mName] as 'имя ячейки',
+		b.[mMaxLevel],
+		b.[mIconSlotX] as 'столбец',
+		b.[mIconSlotY] as 'строчка',
+		c.[mSTNID],
+		c.[mLevel],
+		c.[mSPID] as 'SPID LP - 37',
+		d.[mName] as 'имя уровня ячейки',
+		c.[mSTNIID],
+		CASE
+		WHEN e.mSTNICType = 1 THEN '1 - прошлый STNIID'
+		WHEN e.mSTNICType = 2 THEN '2 - номер ветки STID'
+		WHEN e.mSTNICType = 3 THEN '3 - необходимость владеть замком'
+		WHEN e.mSTNICType = 4 THEN '4 - необходимый скилл SPID'
+		WHEN e.mSTNICType = 5 THEN '5 - опыта для прокачки'
+		WHEN e.mSTNICType = 6 THEN '6 - прошлый STNIID'
+		ELSE '[Неизвестно]'
+		END AS 'тип прокачки',
+		e.[mParamA],
+		e.[mParamB] as 'надо очков в древе',
+		e.[mParamC] as 'очков пред строки'
+		FROM
+		TP_SkillTree AS a
+		INNER JOIN dbo.DT_SkillTreeNode AS b ON ( b.[mSTID] = a.[mSTID] )
+		INNER JOIN dbo.DT_SkillTreeNodeItem AS c ON ( b.[mSTNID] = c.[mSTNID] )
+		INNER JOIN dbo.DT_SkillPack AS d ON ( c.[mSPID] = d.[mSPID] )
+		INNER JOIN dbo.DT_SkillTreeNodeItemCondition AS e ON ( c.[mSTNIID] = e.[mSTNIID] )
+		--where c.mSPID = 644
+		where a.mSTID = 5 --(1,2,3 Древо ги//4 общее древо умений//5,6 танк//7,8 рейн//9,10 маг//11,12 син//13,14 сум//15-34 петомцы (смотреть TP_SkillTree)
+		--where e.mSTNIID = 211
+		--order by b.mIconSlotX, b.mIconSlotY
+	*/
 
 	return nil
 }

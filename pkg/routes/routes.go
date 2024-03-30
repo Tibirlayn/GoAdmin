@@ -138,6 +138,9 @@ func Setup(app *fiber.App) {
 		return controllers.GetDropFromChests(c, pageNumber, limitCnt)
 	})
 
+	// Запрос на вывод древа
+	app.Get("/api/tree", controllers.GetTree)
+
 	// Добавить Крафт
 	app.Post("/api/add-craft", controllers.PostAddCraft)
 

@@ -1,42 +1,42 @@
 account:
   server: localhost
   user: sa
-  password: 756SAd
+  password: 123456
   port: 1433
   account: FNLAccount
 battle:
   server: localhost
   user: sa
-  password: 756SAd
+  password: 123456
   port: 1433
   battle: FNLBattle
 billing:
   server: localhost
   user: sa
-  password: 756SAd
+  password: 123456
   port: 1433
   billing: FNLBilling
 game:
   server: localhost
   user: sa
-  password: 756SAd
+  password: 123456
   port: 1433
   game: FNLGame2155
 logs:
   server: localhost
   user: sa
-  password: 756SAd
+  password: 123456
   port: 1433
   logs: FNLLog
 parm:
   server: localhost
   user: sa
-  password: 756SAd
+  password: 123456
   port: 1433
   parm: FNLParm
 statistics:
   server: localhost
   user: sa
-  password: 756SAd
+  password: 123456
   port: 1433
   statistics: FNLStatistics
